@@ -1,0 +1,8 @@
+# Input path for iclr paper (markdown) to make datasets
+inpath1: data/raw_data/iclr_papers_md
+
+# Input path for iclr reviews (json) to make datasets
+inpath2: data/raw_data/iclr_reviews
+
+# Output path for iclr paper (markdown)
+outpath: data/datasets

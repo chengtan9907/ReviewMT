@@ -1,0 +1,12 @@
+# The year of the iclr data you want to crawl
+# Only can choose from [2017, 2024]
+years: [2017,2018,2019,2020,2021,2022,2023,2024]
+
+# Output path for iclr paper (pdf)
+outpath1: data/raw_data/iclr_papers
+
+# Output path for iclr review (json)
+outpath2: data/raw_data/iclr_reviews
+
+# Proxy(optional)
+#proxy: "127.0.0.1"

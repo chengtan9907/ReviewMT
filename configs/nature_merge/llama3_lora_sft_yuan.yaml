@@ -1,0 +1,15 @@
+# Note: DO NOT use quantized model or quantization_bit when merging lora adapters
+
+# model
+model_name_or_path: IEITYuan/Yuan2-2B-hf
+adapter_name_or_path: saves/Yuan2-2B-hf(nature)/lora/sft
+template: yuan
+finetuning_type: lora
+
+# export
+export_dir: models/Yuan2-2B-hf(nature)
+export_size: 2
+export_device: cpu
+export_legacy_format: false
+
+rope_scaling: dynamic

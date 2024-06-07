@@ -1,0 +1,17 @@
+# Path of the marker project
+marker_path: src/marker
+
+# Input path for iclr paper (pdf) to convert
+inpath: data/raw_data/iclr_papers
+
+# Output path for iclr paper (markdown)
+outpath: data/raw_data/iclr_papers_md
+
+# The number of pdfs to convert at once. This is set to 1 by default, but you can increase it to increase throughput, at the cost of more CPU/GPU usage. Parallelism will not increase beyond INFERENCE_RAM / VRAM_PER_TASK if you're using GPU.
+workers: 1
+
+# The minimum number of characters that need to be extracted from a pdf before it will be considered for processing. If you're processing a lot of pdfs, I recommend setting this to avoid OCRing pdfs that are mostly images. (slows everything down)
+# max:
+
+# The minimum number of characters that need to be extracted from a pdf before it will be considered for processing. If you're processing a lot of pdfs, I recommend setting this to avoid OCRing pdfs that are mostly images. (slows everything down)
+min_length: 10000

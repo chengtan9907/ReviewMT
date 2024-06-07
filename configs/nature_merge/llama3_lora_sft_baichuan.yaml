@@ -1,0 +1,15 @@
+# Note: DO NOT use quantized model or quantization_bit when merging lora adapters
+
+# model
+model_name_or_path: baichuan-inc/Baichuan2-7B-Base
+adapter_name_or_path: saves/Baichuan2-7B-Base(nature)/lora/sft
+template: baichuan2
+finetuning_type: lora
+
+# export
+export_dir: models/Baichuan2-7B-Base(nature)
+export_size: 2
+export_device: cpu
+export_legacy_format: false
+
+rope_scaling: dynamic

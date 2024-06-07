@@ -1,0 +1,11 @@
+# Output path for nature_communication(2023) paper (pdf)
+outpath1: data/raw_data/nature_papers
+
+# Output path for nature_communication(2023) reviews (pdf)
+outpath2: data/raw_data/nature_reviews
+
+# Output path for nature_communication(2023) title+abstract(ta) (json)
+outpath3: data/raw_data/nature_ta
+
+# Proxy(optional)
+#proxy: "127.0.0.1"

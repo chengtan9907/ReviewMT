@@ -1,0 +1,23 @@
+# Path of the marker project
+marker_path: src/marker
+
+# Input path for nature paper (pdf) to convert
+inpath1: data/raw_data/nature_papers
+
+# Output path for nature paper (markdown)
+outpath1: data/raw_data/nature_papers_md
+
+# Input path for nature reviews (pdf) to convert
+inpath2: data/raw_data/nature_reviews
+
+# Output path for nature reviews (markdown)
+outpath2: data/raw_data/nature_reviews_md
+
+# The number of pdfs to convert at once. This is set to 1 by default, but you can increase it to increase throughput, at the cost of more CPU/GPU usage. Parallelism will not increase beyond INFERENCE_RAM / VRAM_PER_TASK if you're using GPU.
+workers: 1
+
+# The minimum number of characters that need to be extracted from a pdf before it will be considered for processing. If you're processing a lot of pdfs, I recommend setting this to avoid OCRing pdfs that are mostly images. (slows everything down)
+# max:
+
+# The minimum number of characters that need to be extracted from a pdf before it will be considered for processing. If you're processing a lot of pdfs, I recommend setting this to avoid OCRing pdfs that are mostly images. (slows everything down)
+min_length: 10000

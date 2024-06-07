@@ -1,0 +1,18 @@
+# Input path for iclr paper (markdown) to make datasets
+inpath1: data/raw_data/nature_papers_md
+
+# Input path for iclr reviews (markdown) to make datasets
+inpath2: data/raw_data/nature_reviews_md
+
+# Input path for iclr ta (json) to make datasets
+inpath3: data/raw_data/nature_ta
+
+# Review files that are not recognized by existing regular expressions, and file output folders that require manual processing (Attention! If you do not select this option, all unrecognized files will not be written to the dataset) (optional)
+# (Please do not enter an illegal month, or the program will automatically ignore it)
+inpath4: data/raw_data/nature_unrecognized_md
+
+# By default, the training data set and test data set are divided according to the publication month. If this field is empty or commented out (train_month: []), the data set is not divided and the whole data set is directly output. Otherwise split the dataset by the month specified by train_month (optional)
+train_month: [1,2,3,4,5,6,7,8,9,10,11]
+
+# Output path for iclr paper (markdown)
+outpath: data/datasets
