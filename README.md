@@ -34,6 +34,8 @@ Large Language Models (LLMs) have demonstrated wide-ranging applications across 
     - [Export dialogue file](#export-dialogue-file)
   - [Metric](#metric)
 - [Acknowledgement](#acknowledgement)
+- [Citation](#citation)
+- [Contact](#contact)
 
 # File Structure
 
@@ -503,3 +505,21 @@ Our project benefits from **Llama Factory** and **marker**, thanks for their won
   - https://github.com/hiyouga/LLaMA-Factory
 - marker
   - https://github.com/VikParuchuri/marker
+
+# Citation
+
+If you are interested in our repository or our paper, please cite the following paper:
+
+```
+TBD
+```
+
+# Contact
+
+For adding new features, looking for helps, or reporting bugs associated with `ReviewMT`, please open a [GitHub issue](https://github.com/chengtan9907/ReviewMT/issues) and [pull request](https://github.com/chengtan9907/ReviewMT/pulls). Feel free to contact us through email if you have any questions.
+
+- Cheng Tan (tancheng@westlake.edu.cn), Westlake University & Zhejiang University
+- Dongxin Lyu (lvdx2122@mails.jlu.edu.cn), Jilin University
+- Siyuan Li (lisiyuan@westlake.edu.cn), Westlake University & Zhejiang University
+
+<p align="right">(<a href="#top">back to top</a>)</p>
