@@ -2,8 +2,10 @@
 
 Large Language Models (LLMs) have demonstrated wide-ranging applications across various fields and have shown significant potential in the academic peer-review process. However, existing applications are primarily limited to static review generation based on submitted papers, which fail to capture the dynamic and iterative nature of real-world peer reviews. In this project, we reformulate the peer-review process as a multi-turn, long-context dialogue, incorporating distinct roles for authors, reviewers, and decision makers. We construct a comprehensive dataset containing over 26,841 papers with 92,017 reviews collected from multiple sources, including the top-tier conference and prestigious journal. This dataset is meticulously designed to facilitate the applications of LLMs for multi-turn dialogues, effectively simulating the complete peer-review process. Furthermore, we propose a series of metrics to evaluate the performance of LLMs for each role under this reformulated peer-review setting, ensuring fair and comprehensive evaluations. We believe this work provides a promising perspective on enhancing the LLM-driven peer-review process by incorporating dynamic, role-based interactions. It aligns closely with the iterative and interactive nature of real-world academic peer review, offering a robust foundation for future research and development in this area.
 
+<b>Datasets are in the (<a href="https://github.com/chengtan9907/ReviewMT/releases">"Releases"</a>) of this repo.</b>
+
 <p align="center" width="100%">
-  <img src='https://github.com/chengtan9907/OpenSTL/assets/34480960/c26ca8a6-9c3d-4eb2-ab7f-3da42fd5d0db' width="80%">
+  <img src='https://github.com/chengtan9907/ReviewMT/assets/34480960/8dac964d-9f68-45d3-b2f0-8a103710aa60' width="100%">
 </p>
 
 
