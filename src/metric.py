@@ -160,7 +160,7 @@ def main():
     else:
         raise Exception("format wrong in config file")
     const_datasets = ['finetune_iclr', 'finetune_nc', 'raw_iclr', 'raw_nc']
-    const_model_names = ['llama3', 'qwen', 'baichuan2', 'gemma', 'deepseek', 'yuan2', 'chatglm3']
+    const_model_names = ['llama3', 'qwen', 'baichuan2', 'gemma', 'deepseek', 'yuan2', 'chatglm3', 'yi', 'falcon', 'glm4', 'qwen2']
     for dataset in datasets:
         if not dataset in const_datasets:
             continue
