@@ -1,0 +1,13 @@
+### Note: DO NOT use quantized model or quantization_bit when merging lora adapters
+
+### model
+model_name_or_path: THUDM/glm-4-9b
+adapter_name_or_path: saves/glm-4-9b(nature)/lora/sft
+template: glm4
+finetuning_type: lora
+
+### export
+export_dir: models/glm-4-9b(nature)
+export_size: 2
+export_device: cpu
+export_legacy_format: false
