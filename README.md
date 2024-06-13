@@ -9,7 +9,9 @@ Large Language Models (LLMs) have demonstrated wide-ranging applications across 
 </p>
 
 
+
 <b>Table of Content</b>
+
 - [Review-MT](#review-mt)
 - [File Structure](#file-structure)
 - [Benchmark](#benchmark)
@@ -40,6 +42,55 @@ Large Language Models (LLMs) have demonstrated wide-ranging applications across 
 # File Structure
 
 ```bash
+├── configs # Configs for LLama Factory to finetune and merge
+│   ├── iclr_finetune
+│   │   ├── llama3_lora_sft_baichuan2.yaml
+│   │   ├── llama3_lora_sft_chatglm.yaml
+│   │   ├── llama3_lora_sft_deepseek.yaml
+│   │   ├── llama3_lora_sft_falcon.yaml
+│   │   ├── llama3_lora_sft_gemma.yaml
+│   │   ├── llama3_lora_sft_glm4.yaml
+│   │   ├── llama3_lora_sft_llama3.yaml
+│   │   ├── llama3_lora_sft_qwen2.yaml
+│   │   ├── llama3_lora_sft_qwen.yaml
+│   │   ├── llama3_lora_sft_yi1_5.yaml
+│   │   └── llama3_lora_sft_yuan.yaml
+│   ├── iclr_merge
+│   │   ├── llama3_lora_sft_baichuan.yaml
+│   │   ├── llama3_lora_sft_chatglm.yaml
+│   │   ├── llama3_lora_sft_deepseek.yaml
+│   │   ├── llama3_lora_sft_falcon.yaml
+│   │   ├── llama3_lora_sft_gemma.yaml
+│   │   ├── llama3_lora_sft_glm4.yaml
+│   │   ├── llama3_lora_sft_llama3.yaml
+│   │   ├── llama3_lora_sft_qwen2.yaml
+│   │   ├── llama3_lora_sft_qwen.yaml
+│   │   ├── llama3_lora_sft_yi.yaml
+│   │   └── llama3_lora_sft_yuan.yaml
+│   ├── nature_finetune
+│   │   ├── llama3_lora_sft_baichuan2.yaml
+│   │   ├── llama3_lora_sft_chatglm.yaml
+│   │   ├── llama3_lora_sft_deepseek.yaml
+│   │   ├── llama3_lora_sft_falcon.yaml
+│   │   ├── llama3_lora_sft_gemma.yaml
+│   │   ├── llama3_lora_sft_glm4.yaml
+│   │   ├── llama3_lora_sft_llama3.yaml
+│   │   ├── llama3_lora_sft_qwen2.yaml
+│   │   ├── llama3_lora_sft_qwen.yaml
+│   │   ├── llama3_lora_sft_yi1_5.yaml
+│   │   └── llama3_lora_sft_yuan.yaml
+│   └── nature_merge
+│       ├── llama3_lora_sft_baichuan.yaml
+│       ├── llama3_lora_sft_chatglm.yaml
+│       ├── llama3_lora_sft_deepseek.yaml
+│       ├── llama3_lora_sft_falcon.yaml
+│       ├── llama3_lora_sft_gemma.yaml
+│       ├── llama3_lora_sft_glm4.yaml
+│       ├── llama3_lora_sft_llama3.yaml
+│       ├── llama3_lora_sft_qwen2.yaml
+│       ├── llama3_lora_sft_qwen.yaml
+│       ├── llama3_lora_sft_yi.yaml
+│       └── llama3_lora_sft_yuan.yaml
 ├── data # Store all data, including raw data, intermediate data, and data sets
 │   ├── datasets # The default storage location of the final dataset
 │   ├── iclr_test_data.json
@@ -50,6 +101,7 @@ Large Language Models (LLMs) have demonstrated wide-ranging applications across 
 │   ├── iclr_convert.yaml
 │   ├── iclr_getrawdata.yaml
 │   ├── iclr_make.yaml
+│   ├── metric.yaml
 │   ├── nature_convert.yaml
 │   ├── nature_getrawdata.yaml
 │   └── nature_make.yaml
@@ -61,37 +113,62 @@ Large Language Models (LLMs) have demonstrated wide-ranging applications across 
 │   ├── 2a_convert_iclr.sh
 │   ├── 2b_convert_nature.sh
 │   ├── 3a_make_iclr.sh
-│   └── 3b_make_nature.sh
+│   ├── 3b_make_nature.sh
+│   ├── 4_inference_iclr.sh
+│   └── 5_metric.sh
 └── src # Source code
     ├── iclr_convert.py
     ├── iclr_make.py
+    ├── inference.py
     ├── marker
+    │   ├── benchmark.py
+    │   ├── chunk_convert.py
+    │   ├── chunk_convert.sh
+    │   ├── CLA.md
+    │   ├── convert.py
+    │   ├── convert_single.py
+    │   ├── data
+    │   ├── LICENSE
+    │   ├── marker
+    │   ├── poetry.lock
+    │   ├── pyproject.toml
+    │   └── scripts
     ├── metric.py
     ├── module.py
     ├── nature_convert.py
     ├── nature_make.py
     └── webcrawlers
+        ├── iclr
+        ├── iclr_webcrawler.py
+        └── nature_webcrawler.py
+
 ```
 
 # Benchmark
 
 |             Method              | Paper hit rate | Review hit rate | Decision hit rate | F1-score |                 Finetune Configuration File                  |
 | :-----------------------------: | :------------: | :-------------: | :---------------: | :------: | :----------------------------------------------------------: |
-|       LLaMA-3 (Zero-shot)       |      100%      |      2.05%      |       9.00%       |  0.6154  |                                                              |
-|        Qwen (Zero-shot)         |      89%       |      2.00%      |      58.43%       |  0.4068  |                                                              |
-|      Baichuan2 (Zero-shot)      |      97%       |      0.00%      |      27.84%       |  0.4848  |                                                              |
-|        Gemma (Zero-shot)        |      98%       |      1.05%      |       5.15%       |  0.6667  |                                                              |
-|      DeepSeek (Zero-shot)       |      100%      |      0.51%      |      31.00%       |  0.6000  |                                                              |
-|        Yuan (Zero-shot)         |      100%      |      0.00%      |       0.00%       |    /     |                                                              |
-|      ChatGLM3 (Zero-shot)       |      100%      |     19.18%      |      32.00%       |  0.2667  |                                                              |
+|       LLaMA-3 (Zero-shot)       |    100.00%     |      2.05%      |       9.00%       |  0.6154  |                                                              |
+|        Qwen (Zero-shot)         |     89.00%     |      2.00%      |      58.43%       |  0.4068  |                                                              |
+|      Baichuan2 (Zero-shot)      |     97.00%     |      0.00%      |      27.84%       |  0.4848  |                                                              |
+|        Gemma (Zero-shot)        |     98.00%     |      1.05%      |       5.15%       |  0.6667  |                                                              |
+|      DeepSeek (Zero-shot)       |    100.00%     |      0.51%      |      31.00%       |  0.6000  |                                                              |
+|        Yuan (Zero-shot)         |    100.00%     |      0.00%      |       0.00%       |    /     |                                                              |
+|      ChatGLM3 (Zero-shot)       |    100.00%     |     19.18%      |      32.00%       |  0.2667  |                                                              |
 |                                 |                |                 |                   |          |                                                              |
-|  LLaMA-3 (Supervised Finetune)  |      100%      |     49.87%      |      42.00%       |  0.6154  | [LLaMA-3](configs/iclr_finetune/llama3_lora_sft_llama3.yaml) |
-|   Qwen (Supervised Finetune)    |      89%       |     74.29%      |      15.73%       |  0.5882  |   [Qwen](configs/iclr_finetune/llama3_lora_sft_qwen.yaml)    |
-| Baichuan2 (Supervised Finetune) |      99%       |     98.45%      |      14.14%       |  0.8000  | [Baichuan2](configs/iclr_finetune/llama3_lora_sft_baichuan2.yaml) |
-|   Gemma (Supervised Finetune)   |      98%       |     81.79%      |      48.94%       |  0.6522  |  [Gemma](configs/iclr_finetune/llama3_lora_sft_gemma.yaml)   |
-| DeepSeek (Supervised Finetune)  |      100%      |     20.46%      |      40.00%       |  0.6486  | [DeepSeek](configs/iclr_finetune/llama3_lora_sft_deepseek.yaml) |
-|   Yuan (Supervised Finetune)    |      100%      |     100.00%     |       1.00%       |  0.0000  |   [Yuan](configs/iclr_finetune/llama3_lora_sft_yuan.yaml)    |
-| ChatGLM3 (Supervised Finetune)  |      99%       |     91.99%      |      41.41%       |  0.6190  | [ChatGLM3](configs/iclr_finetune/llama3_lora_sft_chatglm.yaml) |
+|  LLaMA-3 (Supervised Finetune)  |    100.00%     |     49.87%      |      42.00%       |  0.6154  | [LLaMA-3](configs/iclr_finetune/llama3_lora_sft_llama3.yaml) |
+|   Qwen (Supervised Finetune)    |     89.00%     |     74.29%      |      15.73%       |  0.5882  |   [Qwen](configs/iclr_finetune/llama3_lora_sft_qwen.yaml)    |
+| Baichuan2 (Supervised Finetune) |     99.00%     |     98.45%      |      14.14%       |  0.8000  | [Baichuan2](configs/iclr_finetune/llama3_lora_sft_baichuan2.yaml) |
+|   Gemma (Supervised Finetune)   |     98.00%     |     81.79%      |      48.94%       |  0.6522  |  [Gemma](configs/iclr_finetune/llama3_lora_sft_gemma.yaml)   |
+| DeepSeek (Supervised Finetune)  |    100.00%     |     20.46%      |      40.00%       |  0.6486  | [DeepSeek](configs/iclr_finetune/llama3_lora_sft_deepseek.yaml) |
+|   Yuan (Supervised Finetune)    |    100.00%     |     100.00%     |       1.00%       |  0.0000  |   [Yuan](configs/iclr_finetune/llama3_lora_sft_yuan.yaml)    |
+| ChatGLM3 (Supervised Finetune)  |     99.00%     |     91.99%      |      41.41%       |  0.6190  | [ChatGLM3](configs/iclr_finetune/llama3_lora_sft_chatglm.yaml) |
+|  Falcon (Supervised Finetune)   |    100.00%     |     95.40%      |      17.00%       |  0.5614  | [Falcon](configs/iclr_finetune/llama3_lora_sft_falcon.yaml)  |
+|  Yi-1.5 (Supervised Finetune)   |     99.00%     |     97.67%      |       100%        |  0.5614  |  [Yi-1.5](configs/iclr_finetune/llama3_lora_sft_yi1_5.yaml)  |
+|   GLM-4 (Supervised Finetune)   |    100.00%     |     78.77%      |      68.00%       |  0.5758  |   [GLM-4](configs/iclr_finetune/llama3_lora_sft_glm4.yaml)   |
+|  Qwen-2 (Supervised Finetune)   |     98.00%     |     97.91%      |      58.16%       |  0.6875  |  [Qwen-2](configs/iclr_finetune/llama3_lora_sft_qwen2.yaml)  |
+
+
 
 
 # Installation
@@ -349,6 +426,8 @@ outpath: data/datasets
 |  ChatGLM  | [ChatGLM3](configs/iclr_finetune/llama3_lora_sft_chatglm.yaml) |
 |  Yi 1.5   |  [Yi 1.5](configs/iclr_finetune/llama3_lora_sft_yi1_5.yaml)  |
 |  Falcon   | [Falcon](configs/iclr_finetune/llama3_lora_sft_falcon.yaml)  |
+|   GLM-4   |   [GLM-4](configs/iclr_finetune/llama3_lora_sft_glm4.yaml)   |
+|  Qwen-2   |  [Qwen-2](configs/iclr_finetune/llama3_lora_sft_qwen2.yaml)  |
 
 ### Steps of Fine-tuning
 
@@ -392,8 +471,10 @@ CUDA_VISIBLE_DEVICES=0 llamafactory-cli train examples/lora_multi_gpu/llama3_lor
 | DeepSeek  | [DeepSeek](configs/iclr_merge/llama3_lora_sft_deepseek.yaml) |
 |   Yuan    |     [Yuan](configs/iclr_merge/llama3_lora_sft_yuan.yaml)     |
 |  ChatGLM  | [ChatGLM3](configs/iclr_merge/llama3_lora_sft_chatglm.yaml)  |
-|  Yi 1.5   |   [Yi 1.5](configs/iclr_merge/llama3_lora_sft_yi1_5.yaml)    |
+|  Yi 1.5   |     [Yi 1.5](configs/iclr_merge/llama3_lora_sft_yi.yaml)     |
 |  Falcon   |   [Falcon](configs/iclr_merge/llama3_lora_sft_falcon.yaml)   |
+|   GLM-4   |    [GLM-4](configs/iclr_merge/llama3_lora_sft_glm4.yaml)     |
+|  Qwen-2   |   [Qwen-2](configs/iclr_merge/llama3_lora_sft_qwen2.yaml)    |
 
 ### Steps of Merge
 
@@ -482,7 +563,6 @@ bash scripts/5_metric.sh
 **Custom Configuration**
 
 ```yaml
-
 # Dataset to use when fine-tuning
 # Must choose from ['finetune_iclr', 'finetune_nc', 'raw_iclr', 'raw_nc']
 datasets = ['finetune_iclr']
