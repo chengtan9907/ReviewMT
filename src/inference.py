@@ -87,12 +87,22 @@ model_list = {
     'falcon': {
         "model_name_or_path": "data/models/falcon-7b",
         "template": "falcon",
-        "full_context": True
+        "full_context": False
     },
     'yi': {
         "model_name_or_path": "data/models/Yi-1.5-6B-Chat",
         "template": "yi",
         "full_context": True
+    },
+    'glm4': {
+        "model_name_or_path": "data/models/glm-4-9b",
+        "template": "glm4",
+        "full_context": False
+    },
+    'qwen2': {
+        "model_name_or_path": "data/models/Qwen2-7B",
+        "template": "qwen",
+        "full_context": False
     }
 }
 
@@ -141,12 +151,22 @@ for i in model_list:
             'falcon': {
                 "model_name_or_path": "tiiuae/falcon-7b",
                 "template": "falcon",
-                "full_context": True
+                "full_context": False
             },
             'yi': {
                 "model_name_or_path": "01-ai/Yi-1.5-6B-Chat",
                 "template": "yi",
                 "full_context": True
+            },
+            'glm4': {
+                "model_name_or_path": "data/models/glm-4-9b",
+                "template": "glm4",
+                "full_context": False
+            },
+            'qwen2': {
+                "model_name_or_path": "data/models/Qwen2-7B",
+                "template": "qwen",
+                "full_context": False
             }
         }
 
