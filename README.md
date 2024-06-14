@@ -148,20 +148,24 @@ Large Language Models (LLMs) have demonstrated wide-ranging applications across 
 
 |             Method              | Paper hit rate | Review hit rate | Decision hit rate | F1-score |                 Finetune Configuration File                  |
 | :-----------------------------: | :------------: | :-------------: | :---------------: | :------: | :----------------------------------------------------------: |
-|       LLaMA-3 (Zero-shot)       |    100.00%     |      2.05%      |       9.00%       |  0.6154  |                                                              |
-|        Qwen (Zero-shot)         |     89.00%     |      2.00%      |      58.43%       |  0.4068  |                                                              |
-|      Baichuan2 (Zero-shot)      |     97.00%     |      0.00%      |      27.84%       |  0.4848  |                                                              |
-|        Gemma (Zero-shot)        |     98.00%     |      1.05%      |       5.15%       |  0.6667  |                                                              |
-|      DeepSeek (Zero-shot)       |    100.00%     |      0.51%      |      31.00%       |  0.6000  |                                                              |
-|        Yuan (Zero-shot)         |    100.00%     |      0.00%      |       0.00%       |    /     |                                                              |
-|      ChatGLM3 (Zero-shot)       |    100.00%     |     19.18%      |      32.00%       |  0.2667  |                                                              |
+|       LLaMA-3 (Zero-shot)       |    100.00%     |      2.05%      |       9.00%       |  0.6154  |                              /                               |
+|        Qwen (Zero-shot)         |     89.00%     |      2.00%      |      58.43%       |  0.4068  |                              /                               |
+|      Baichuan2 (Zero-shot)      |     97.00%     |      0.00%      |      27.84%       |  0.4848  |                              /                               |
+|        Gemma (Zero-shot)        |     98.00%     |      1.05%      |       5.15%       |  0.6667  |                              /                               |
+|      DeepSeek (Zero-shot)       |    100.00%     |      0.51%      |      31.00%       |  0.6000  |                              /                               |
+|        Yuan (Zero-shot)         |    100.00%     |      0.00%      |       0.00%       |    /     |                              /                               |
+|      ChatGLM3 (Zero-shot)       |    100.00%     |     19.18%      |      32.00%       |  0.2667  |                              /                               |
+|  Falcon (Supervised Finetune)   |    100.00%     |      0.26%      |       0.00%       |  0.4212  |                              /                               |
+|  Yi-1.5 (Supervised Finetune)   |     99.00%     |      0.00%      |       0.00%       |  0.3214  |                              /                               |
+|   GLM-4 (Supervised Finetune)   |    100.00%     |     39.00%      |      56.00%       |  0.3600  |                              /                               |
+|  Qwen-2 (Supervised Finetune)   |    100.00%     |      0.00%      |       1.00%       |  0.2413  |                              /                               |
 |                                 |                |                 |                   |          |                                                              |
 |  LLaMA-3 (Supervised Finetune)  |    100.00%     |     49.87%      |      42.00%       |  0.6154  | [LLaMA-3](configs/iclr_finetune/llama3_lora_sft_llama3.yaml) |
 |   Qwen (Supervised Finetune)    |     89.00%     |     74.29%      |      15.73%       |  0.5882  |   [Qwen](configs/iclr_finetune/llama3_lora_sft_qwen.yaml)    |
 | Baichuan2 (Supervised Finetune) |     99.00%     |     98.45%      |      14.14%       |  0.8000  | [Baichuan2](configs/iclr_finetune/llama3_lora_sft_baichuan2.yaml) |
 |   Gemma (Supervised Finetune)   |     98.00%     |     81.79%      |      48.94%       |  0.6522  |  [Gemma](configs/iclr_finetune/llama3_lora_sft_gemma.yaml)   |
 | DeepSeek (Supervised Finetune)  |    100.00%     |     20.46%      |      40.00%       |  0.6486  | [DeepSeek](configs/iclr_finetune/llama3_lora_sft_deepseek.yaml) |
-|   Yuan (Supervised Finetune)    |    100.00%     |     100.00%     |       1.00%       |  0.0000  |   [Yuan](configs/iclr_finetune/llama3_lora_sft_yuan.yaml)    |
+|   Yuan (Supervised Finetune)    |    100.00%     |     100.00%     |       1.00%       |    /     |   [Yuan](configs/iclr_finetune/llama3_lora_sft_yuan.yaml)    |
 | ChatGLM3 (Supervised Finetune)  |     99.00%     |     91.99%      |      41.41%       |  0.6190  | [ChatGLM3](configs/iclr_finetune/llama3_lora_sft_chatglm.yaml) |
 |  Falcon (Supervised Finetune)   |    100.00%     |     95.40%      |      17.00%       |  0.5614  | [Falcon](configs/iclr_finetune/llama3_lora_sft_falcon.yaml)  |
 |  Yi-1.5 (Supervised Finetune)   |     99.00%     |     97.67%      |       100%        |  0.5614  |  [Yi-1.5](configs/iclr_finetune/llama3_lora_sft_yi1_5.yaml)  |
