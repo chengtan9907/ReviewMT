@@ -595,7 +595,12 @@ Our project benefits from **Llama Factory** and **marker**, thanks for their won
 If you are interested in our repository or our paper, please cite the following paper:
 
 ```
-TBD
+@article{tan2024peer,
+  title={Peer Review as A Multi-Turn and Long-Context Dialogue with Role-Based Interactions},
+  author={Tan, Cheng and Lyu, Dongxin and Li, Siyuan and Gao, Zhangyang and Wei, Jingxuan and Ma, Siqi and Liu, Zicheng and Li, Stan Z},
+  journal={arXiv preprint arXiv:2406.05688},
+  year={2024}
+}
 ```
 
 # Contact
