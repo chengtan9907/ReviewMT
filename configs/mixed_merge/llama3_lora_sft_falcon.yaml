@@ -1,0 +1,15 @@
+# Note: DO NOT use quantized model or quantization_bit when merging lora adapters
+
+# model
+model_name_or_path: tiiuae/falcon-7b
+adapter_name_or_path: saves/falcon-7b(mix)/lora/sft
+template: falcon
+finetuning_type: lora
+
+# export
+export_dir: models/falcon-7b(mix)
+export_size: 2
+export_device: cpu
+export_legacy_format: false
+
+rope_scaling: dynamic

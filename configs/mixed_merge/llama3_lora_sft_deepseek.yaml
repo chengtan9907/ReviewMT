@@ -1,0 +1,15 @@
+# Note: DO NOT use quantized model or quantization_bit when merging lora adapters
+
+# model
+model_name_or_path: deepseek-ai/deepseek-llm-7b-base
+adapter_name_or_path: saves/deepseek-llm-7b-base(mix)/lora/sft
+template: deepseek
+finetuning_type: lora
+
+# export
+export_dir: models/deepseek-llm-7b-base(mix)
+export_size: 2
+export_device: cpu
+export_legacy_format: false
+
+rope_scaling: dynamic

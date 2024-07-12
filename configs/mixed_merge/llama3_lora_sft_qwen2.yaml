@@ -2,12 +2,12 @@
 
 ### model
 model_name_or_path: Qwen/Qwen2-7B
-adapter_name_or_path: saves/Qwen2-7B(iclr)/lora/sft
+adapter_name_or_path: saves/Qwen2-7B(mix)/lora/sft
 template: qwen
 finetuning_type: lora
 
 ### export
-export_dir: models/Qwen2-7B(iclr)
+export_dir: models/Qwen2-7B(mix)
 export_size: 2
 export_device: cpu
 export_legacy_format: false

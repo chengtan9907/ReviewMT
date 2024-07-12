@@ -1,0 +1,15 @@
+# Note: DO NOT use quantized model or quantization_bit when merging lora adapters
+
+# model
+model_name_or_path: NousResearch/Meta-Llama-3-8B
+adapter_name_or_path: saves/Meta-Llama-3-8B(mix)/lora/sft
+template: llama3
+finetuning_type: lora
+
+# export
+export_dir: models/Meta-Llama-3-8B(mix)
+export_size: 2
+export_device: cpu
+export_legacy_format: false
+
+rope_scaling: dynamic

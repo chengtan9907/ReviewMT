@@ -146,6 +146,8 @@ Large Language Models (LLMs) have demonstrated wide-ranging applications across 
 
 # Benchmark
 
+- Basic Comparison
+
 |             Method              | Paper hit rate | Review hit rate | Decision hit rate | F1-score |                 Finetune Configuration File                  |
 | :-----------------------------: | :------------: | :-------------: | :---------------: | :------: | :----------------------------------------------------------: |
 |       LLaMA-3 (Zero-shot)       |    100.00%     |      2.05%      |       9.00%       |  0.6154  |                              /                               |
@@ -155,10 +157,10 @@ Large Language Models (LLMs) have demonstrated wide-ranging applications across 
 |      DeepSeek (Zero-shot)       |    100.00%     |      0.51%      |      31.00%       |  0.6000  |                              /                               |
 |        Yuan (Zero-shot)         |    100.00%     |      0.00%      |       0.00%       |    /     |                              /                               |
 |      ChatGLM3 (Zero-shot)       |    100.00%     |     19.18%      |      32.00%       |  0.2667  |                              /                               |
-|  Falcon (Supervised Finetune)   |    100.00%     |      0.26%      |       0.00%       |  0.4212  |                              /                               |
-|  Yi-1.5 (Supervised Finetune)   |     99.00%     |      0.00%      |       0.00%       |  0.3214  |                              /                               |
-|   GLM-4 (Supervised Finetune)   |    100.00%     |     39.00%      |      56.00%       |  0.3600  |                              /                               |
-|  Qwen-2 (Supervised Finetune)   |    100.00%     |      0.00%      |       1.00%       |  0.2413  |                              /                               |
+|       Falcon (Zero-shot)        |    100.00%     |      0.26%      |       0.00%       |  0.4212  |                              /                               |
+|       Yi-1.5 (Zero-shot)        |     99.00%     |      0.00%      |       0.00%       |  0.3214  |                              /                               |
+|        GLM-4 (Zero-shot)        |    100.00%     |     39.00%      |      56.00%       |  0.3600  |                              /                               |
+|       Qwen-2 (Zero-shot)        |    100.00%     |      0.00%      |       1.00%       |  0.2413  |                              /                               |
 |                                 |                |                 |                   |          |                                                              |
 |  LLaMA-3 (Supervised Finetune)  |    100.00%     |     49.87%      |      42.00%       |  0.6154  | [LLaMA-3](configs/iclr_finetune/llama3_lora_sft_llama3.yaml) |
 |   Qwen (Supervised Finetune)    |     89.00%     |     74.29%      |      15.73%       |  0.5882  |   [Qwen](configs/iclr_finetune/llama3_lora_sft_qwen.yaml)    |
@@ -172,7 +174,37 @@ Large Language Models (LLMs) have demonstrated wide-ranging applications across 
 |   GLM-4 (Supervised Finetune)   |    100.00%     |     78.77%      |      68.00%       |  0.5758  |   [GLM-4](configs/iclr_finetune/llama3_lora_sft_glm4.yaml)   |
 |  Qwen-2 (Supervised Finetune)   |     98.00%     |     97.91%      |      58.16%       |  0.6875  |  [Qwen-2](configs/iclr_finetune/llama3_lora_sft_qwen2.yaml)  |
 
+- Training on the 1000 entries from ICLR dataset
 
+|  Method   | Paper hit rate | Review hit rate | Decision hit rate | F1-score | Finetune Configuration File |
+| :-------: | :------------: | :-------------: | :---------------: | :------: | :-------------------------: |
+|  LLaMA-3  |    100.00%     |     53.71%      |      45.62%       |  0.6275  |                             |
+|   Qwen    |     90.10%     |     74.88%      |      17.54%       |  0.5882  |                             |
+| Baichuan2 |     99.9%      |     98.28%      |      34.02%       |  0.5616  |                             |
+|   Gemma   |                |                 |                   |          |                             |
+| DeepSeek  |                |                 |                   |          |                             |
+|   Yuan    |    100.00%     |     99.97%      |       4.30%       |  0.4167  |                             |
+| ChatGLM3  |    100.00%     |     91.17%      |      35.80%       |  0.6614  |                             |
+|  Falcon   |    100.00%     |     96.94%      |      21.20%       |  0.5481  |                             |
+|  Yi-1.5   |     78.10%     |     95.24%      |      77.46%       |  0.6772  |                             |
+|   GLM-4   |     99.70%     |     82.83%      |      61.69%       |  0.6568  |                             |
+|  Qwen-2   |    100.00%     |     98.51%      |      65.10%       |  0.6524  |                             |
+
+- Training on the 100 entries from ICLR dataset and Nature dataset
+
+|  Method   | Paper hit rate | Review hit rate | Decision hit rate | F1-score | Finetune Configuration File |
+| :-------: | :------------: | :-------------: | :---------------: | :------: | :-------------------------: |
+|  LLaMA-3  |                |                 |                   |          |                             |
+|   Qwen    |                |                 |                   |          |                             |
+| Baichuan2 |                |                 |                   |          |                             |
+|   Gemma   |                |                 |                   |          |                             |
+| DeepSeek  |                |                 |                   |          |                             |
+|   Yuan    |                |                 |                   |          |                             |
+| ChatGLM3  |                |                 |                   |          |                             |
+|  Falcon   |                |                 |                   |          |                             |
+|  Yi-1.5   |                |                 |                   |          |                             |
+|   GLM-4   |                |                 |                   |          |                             |
+|  Qwen-2   |                |                 |                   |          |                             |
 
 
 # Installation
@@ -411,13 +443,20 @@ outpath: data/datasets
 - `train_month`
   - Nature's dataset allows you to split training and test data sets by month.
 
+## Make the Mixed(with ICLR and NC) dataset
+
+- Of course, you can mix the ICLR and NC datasets to get better results. **As long as you have finished the steps of making ICLR and NC datasets.**
+
+- There are no specific tools for concatenating the datasets in this project.In fact, all you need to do is write a very simple script to process the datasets you obtained in the previous two sections. **For merging data, there are options in the later Finetune and Merge steps.**
+
 ## Finetune
 
 - Llama Factory is a project designed to make it very easy to fine-tune large models. Let's see how we can use the Llama Factory to fine-tune LLM using the dataset we created earlier.
 
 ### Model Fine-tuning Configuration File
 
-- The file links here all point to the fine-tuning configuration file for the ICLR dataset; Nature's configuration files are found in `configs/nature_finetune/`
+- The file links here all point to the fine-tuning configuration file for the ICLR dataset; Nature's configuration files are found in `configs/nature_finetune/`. 
+- We also provide a fine-tuned configuration file that mixes the two current datasets (ICLR and NC) together. They can be found in `configs/mixed_finetune/`.
 
 |   Model   |                      Configuration File                      |
 | :-------: | :----------------------------------------------------------: |
@@ -465,6 +504,7 @@ CUDA_VISIBLE_DEVICES=0 llamafactory-cli train examples/lora_multi_gpu/llama3_lor
 ### Model Merge Configuration File
 
 - The file links here all point to the merge configuration file for the ICLR dataset; Nature's configuration files are found in `configs/nature_merge/`
+- And the mixed version can be found in `configs/mixed_merge/`.
 
 |   Model   |                      Configuration File                      |
 | :-------: | :----------------------------------------------------------: |
@@ -507,7 +547,7 @@ You can experience dialogs in the local inference section of the Llama Factory p
 If you have been working with the default path of the Llama Factory, you can call the following command to implement the console dialog. (Here takes the Llama3 configuration file as an example)
 
 ```bash
-CUDA_VISIBLE_DEVICES=0 llamafactory-cli chat examples/inference/llama3_lora_sft_llama3.yaml
+llamafactory-cli chat examples/inference/llama3_lora_sft_llama3.yaml
 ```
 
 For more advanced usage, see the Llama Factory project.
@@ -527,7 +567,7 @@ This example script is used to test the ICLRfine-tuned llama3 model on the ICLR 
 **How to Use inference.py**
 
 ```bash
-python scr/inference.py -m {model_name} -t {type}
+python scr/inference.py -m {model_name} -t {type} -n {number}
 ```
 
 - `{model_name}`
@@ -551,8 +591,9 @@ python scr/inference.py -m {model_name} -t {type}
       - *Explanation: Test with raw models on the iclr dataset, and inference on the iclr dataset*
     - nature_raw
       - *Explanation: Test with raw models on the nature dataset, and inference on the nature dataset*
+- {number}
+  - If the number of literatures used for local inference testing exceeds the number of existing literatures used for testing, the inference is carried out with the maximum number of existing literatures. The default value is 100.
 
-Note that by default, we provide a test dataset with only **100** entries from the original dataset. If you need more test data, or you want other data sets for testing, you can replace the original test data set file.
 
 ## Metric
 

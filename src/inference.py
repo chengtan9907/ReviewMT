@@ -18,13 +18,17 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--model', '-m', type=str, default='qwen',
                     help='The path of config file.')
 parser.add_argument('--type', '-t', type=str, default='iclr',
-                    help='The type of test dataset')
+                    help='The type of test dataset.')
+parser.add_argument('--number', '-n', type=int, default=100,
+                    help='The number of papers from test dataset to inference.')
 
 arguments = parser.parse_args()
 
 model_name = arguments.model
 
 type = arguments.type
+
+number_of_inference = arguments.number
 
 if type == 'iclr_raw' or type == 'iclr':
     path = "data/iclr_test_datasets.json"
@@ -274,6 +278,11 @@ async def main():
     with open(path, 'r', encoding='utf-8') as fp:
         test_data = json.load(fp)
 
+    max_number_of_inference = len(test_data)
+
+    if number_of_inference > max_number_of_inference:
+        number_of_inference = max_number_of_inference
+
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -282,7 +291,7 @@ async def main():
 
         tasks = [
             loop.run_in_executor(executor, process_entry, args, t, index, full_context)
-            for index, t in enumerate(test_data[:100])
+            for index, t in enumerate(test_data[:number_of_inference])
         ]
 
         results = []

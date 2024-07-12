@@ -2,12 +2,12 @@
 
 ### model
 model_name_or_path: THUDM/glm-4-9b
-adapter_name_or_path: saves/glm-4-9b/lora/sft
+adapter_name_or_path: saves/glm-4-9b(iclr)/lora/sft
 template: glm4
 finetuning_type: lora
 
 ### export
-export_dir: models/glm-4-9b
+export_dir: models/glm-4-9b(iclr)
 export_size: 2
 export_device: cpu
 export_legacy_format: false
