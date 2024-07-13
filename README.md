@@ -181,8 +181,8 @@ Large Language Models (LLMs) have demonstrated wide-ranging applications across 
 |  LLaMA-3  |    100.00%     |     53.71%      |      45.62%       |  0.6275  |                             |
 |   Qwen    |     90.10%     |     74.88%      |      17.54%       |  0.5882  |                             |
 | Baichuan2 |     99.9%      |     98.28%      |      34.02%       |  0.5616  |                             |
-|   Gemma   |                |                 |                   |          |                             |
-| DeepSeek  |                |                 |                   |          |                             |
+|   Gemma   |     86.50%     |     79.11%      |      64.78%       |  0.6823  |                             |
+| DeepSeek  |    100.00%     |     99.87%      |      29.00%       |  0.5693  |                             |
 |   Yuan    |    100.00%     |     99.97%      |       4.30%       |  0.4167  |                             |
 | ChatGLM3  |    100.00%     |     91.17%      |      35.80%       |  0.6614  |                             |
 |  Falcon   |    100.00%     |     96.94%      |      21.20%       |  0.5481  |                             |
