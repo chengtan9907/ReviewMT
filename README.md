@@ -178,33 +178,33 @@ Large Language Models (LLMs) have demonstrated wide-ranging applications across 
 
 |  Method   | Paper hit rate | Review hit rate | Decision hit rate | F1-score | Finetune Configuration File |
 | :-------: | :------------: | :-------------: | :---------------: | :------: | :-------------------------: |
-|  LLaMA-3  |    100.00%     |     53.71%      |      45.62%       |  0.6275  |                             |
-|   Qwen    |     90.10%     |     74.88%      |      17.54%       |  0.5882  |                             |
-| Baichuan2 |     99.9%      |     98.28%      |      34.02%       |  0.5616  |                             |
-|   Gemma   |     86.50%     |     79.11%      |      64.78%       |  0.6823  |                             |
-| DeepSeek  |    100.00%     |     99.87%      |      29.00%       |  0.5693  |                             |
-|   Yuan    |    100.00%     |     99.97%      |       4.30%       |  0.4167  |                             |
-| ChatGLM3  |    100.00%     |     91.17%      |      35.80%       |  0.6614  |                             |
-|  Falcon   |    100.00%     |     96.94%      |      21.20%       |  0.5481  |                             |
-|  Yi-1.5   |     78.10%     |     95.24%      |      77.46%       |  0.6772  |                             |
-|   GLM-4   |     99.70%     |     82.83%      |      61.69%       |  0.6568  |                             |
-|  Qwen-2   |    100.00%     |     98.51%      |      65.10%       |  0.6524  |                             |
+|  LLaMA-3  |    100.00%     |     53.71%      |      45.62%       |  0.6275  |              /              |
+|   Qwen    |     90.10%     |     74.88%      |      17.54%       |  0.5882  |              /              |
+| Baichuan2 |     99.9%      |     98.28%      |      34.02%       |  0.5616  |              /              |
+|   Gemma   |     86.50%     |     79.11%      |      64.78%       |  0.6823  |              /              |
+| DeepSeek  |    100.00%     |     99.87%      |      29.00%       |  0.5693  |              /              |
+|   Yuan    |    100.00%     |     99.97%      |       4.30%       |    /     |              /              |
+| ChatGLM3  |    100.00%     |     91.17%      |      35.80%       |  0.6614  |              /              |
+|  Falcon   |    100.00%     |     96.94%      |      21.20%       |  0.5481  |              /              |
+|  Yi-1.5   |     78.10%     |     95.24%      |      77.46%       |  0.6772  |              /              |
+|   GLM-4   |     99.70%     |     82.83%      |      61.69%       |  0.6568  |              /              |
+|  Qwen-2   |    100.00%     |     98.51%      |      65.10%       |  0.6524  |              /              |
 
 - Training on the 100 entries from ICLR dataset and Nature dataset
 
-|  Method   | Paper hit rate | Review hit rate | Decision hit rate | F1-score | Finetune Configuration File |
-| :-------: | :------------: | :-------------: | :---------------: | :------: | :-------------------------: |
-|  LLaMA-3  |                |                 |                   |          |                             |
-|   Qwen    |                |                 |                   |          |                             |
-| Baichuan2 |                |                 |                   |          |                             |
-|   Gemma   |                |                 |                   |          |                             |
-| DeepSeek  |                |                 |                   |          |                             |
-|   Yuan    |                |                 |                   |          |                             |
-| ChatGLM3  |                |                 |                   |          |                             |
-|  Falcon   |                |                 |                   |          |                             |
-|  Yi-1.5   |                |                 |                   |          |                             |
-|   GLM-4   |                |                 |                   |          |                             |
-|  Qwen-2   |                |                 |                   |          |                             |
+|  Method   | Paper hit rate | Review hit rate | Decision hit rate | F1-score |                 Finetune Configuration File                  |
+| :-------: | :------------: | :-------------: | :---------------: | :------: | :----------------------------------------------------------: |
+|  LLaMA-3  |     99.10%     |     95.43%      |      67.42%       |  0.6567  | [LLaMA-3](configs/mixed_finetune/llama3_lora_sft_llama3.yaml) |
+|   Qwen    |     98.90%     |     96.86%      |      56.18%       |  0.5185  |   [Qwen](configs/mixed_finetune/llama3_lora_sft_qwen.yaml)   |
+| Baichuan2 |    100.00%     |     92.58%      |       3.00%       |  0.8000  | [Baichuan2](configs/mixed_finetune/llama3_lora_sft_baichuan2.yaml) |
+|   Gemma   |    100.00%     |     92.24%      |      50.00%       |  0.8421  |  [Gemma](configs/mixed_finetune/llama3_lora_sft_gemma.yaml)  |
+| DeepSeek  |     99.90%     |     82.22%      |      37.37%       |  0.5128  | [DeepSeek](configs/mixed_finetune/llama3_lora_sft_deepseek.yaml) |
+|   Yuan    |    100.00%     |     100.00%     |      19.19%       |    /     |   [Yuan](configs/mixed_finetune/llama3_lora_sft_yuan.yaml)   |
+| ChatGLM3  |    100.00%     |     96.42%      |      40.00%       |  0.6047  | [ChatGLM3](configs/mixed_finetune/llama3_lora_sft_chatglm.yaml) |
+|  Falcon   |     99.90%     |     88.11%      |      12.12%       |  0.4615  | [Falcon](configs/mixed_finetune/llama3_lora_sft_falcon.yaml) |
+|  Yi-1.5   |     97.30%     |     98.60%      |      76.71%       |  0.4444  | [Yi-1.5](configs/mixed_finetune/llama3_lora_sft_yi1_5.yaml)  |
+|   GLM-4   |    100.00%     |     89.26%      |      34.00%       |  0.4848  |  [GLM-4](configs/mixed_finetune/llama3_lora_sft_glm4.yaml)   |
+|  Qwen-2   |    100.00%     |     100.00%     |      31.31%       |  0.7059  | [Qwen-2](configs/mixed_finetune/llama3_lora_sft_qwen2.yaml)  |
 
 
 # Installation
@@ -556,6 +556,8 @@ For more advanced usage, see the Llama Factory project.
 
 - **Attention that you have to do this if you want to proceed to the next step of Metric!**
 
+> If a `AttributeError: can’t set attribute ‘eos_token'` error occurs during the local inference of the self-fine-tuned **ChatGLM3** model, please copy all the files in the source directory on huggingface.co except `bin` and `pytorch_model.bin.index.json` to the export directory to overwrite
+
 **Quick Start**
 
 ```bash
@@ -621,6 +623,8 @@ total_papers = 100
 ```
 
 - In this step, it is recommended to train all the models and corresponding datasets you need before proceeding uniformly; Finally, the statistical test results are output to the console.
+
+> For mixed ICLR and NC datasets, use the `finetune_iclr` mode, but **be sure to set the models folder name correctly**
 
 # Acknowledgement
 
