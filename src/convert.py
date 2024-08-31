@@ -47,7 +47,7 @@ class ICLR_Formatter:
                 rebuttal = "The author doesn't have any rebuttal."
             response = " ".join(reviewer['response(from reviewer)']).strip()
             if not response:
-                response = f"Reviewer{str(index+1)} doesn't have more comment."
+                response = f"Reviewer {str(index+1)} doesn't have more comment."
             
             meta['history'].append([f"You are Reviewer {str(index+1)}, and your review style is {style}. Please provide a review based on the paper provided, including a summary, strengths, weaknesses, and any questions you have.",
             f"Summary: {reviewer['summary']}."])
@@ -74,7 +74,7 @@ class ICLR_Formatter:
                 rebuttal = "The author doesn't have any rebuttal."
             response = " ".join(reviewer['response(from reviewer)']).strip()
             if not response:
-                response = f"Reviewer{str(index+1)} doesn't have more comment."
+                response = f"Reviewer {str(index+1)} doesn't have more comment."
             
             meta['history'].append([f"You are Reviewer {str(index+1)}, and your review style is {style}. Please provide a review based on the paper provided, including a summary, strengths, weaknesses, and any questions you have.",
             f"Summary: {reviewer['summary']}."])
@@ -101,7 +101,7 @@ class ICLR_Formatter:
                 rebuttal = "The author doesn't have any rebuttal."
             response = " ".join(reviewer['response(from reviewer)']).strip()
             if not response:
-                response = f"Reviewer{str(index+1)} doesn't have more comment."
+                response = f"Reviewer {str(index+1)} doesn't have more comment."
             
             meta['history'].append([f"You are Reviewer {str(index+1)}, and your review style is {style}. Please provide a review based on the paper provided, including a summary, strengths, weaknesses, and any questions you have.",
             f"Summary: {reviewer['summary']}."])
@@ -128,7 +128,7 @@ class ICLR_Formatter:
                 rebuttal = "The author doesn't have any rebuttal."
             response = " ".join(reviewer['response(from reviewer)']).strip()
             if not response:
-                response = f"Reviewer{str(index+1)} doesn't have more comment."
+                response = f"Reviewer {str(index+1)} doesn't have more comment."
             
             meta['history'].append([f"You are Reviewer {str(index+1)}, and your review style is {style}. Please provide a review based on the paper provided, including a summary, strengths, weaknesses, and any questions you have.",
             f"Summary: {reviewer['summary']}."])
@@ -155,7 +155,7 @@ class ICLR_Formatter:
                 rebuttal = "The author doesn't have any rebuttal."
             response = " ".join(reviewer['response(from reviewer)']).strip()
             if not response:
-                response = f"Reviewer{str(index+1)} doesn't have more comment."
+                response = f"Reviewer {str(index+1)} doesn't have more comment."
             
             meta['history'].append([f"You are Reviewer {str(index+1)}, and your review style is {style}. Pleasse provide a review based on the paper provided, including a summary, strengths, weaknesses, and any questions you have.",
             f"Summary: {reviewer['summary']}."])
@@ -182,7 +182,7 @@ class ICLR_Formatter:
                 rebuttal = "The author doesn't have any rebuttal."
             response = " ".join(reviewer['response(from reviewer)']).strip()
             if not response:
-                response = f"Reviewer{str(index+1)} doesn't have more comment."
+                response = f"Reviewer {str(index+1)} doesn't have more comment."
             
             meta['history'].append([f"You are Reviewer {str(index+1)}, and your review style is {style}. Please provide a review based on the paper provided, including a summary, strengths, weaknesses, and any questions you have.",
             f"Summary: {reviewer['summary']}. Strengths and Weaknesses: {reviewer['strengths_and_weakness']}."])
@@ -209,7 +209,7 @@ class ICLR_Formatter:
                 rebuttal = "The author doesn't have any rebuttal."
             response = " ".join(reviewer['response(from reviewer)']).strip()
             if not response:
-                response = f"Reviewer{str(index+1)} doesn't have more comment."
+                response = f"Reviewer {str(index+1)} doesn't have more comment."
             
             meta['history'].append([f"You are Reviewer {str(index+1)}, and your review style is {style}. Please provide a review based on the paper provided, including a summary, strengths, weaknesses, and any questions you have.",
             f"Summary: {reviewer['summary']}. Strengths and Weaknesses: {reviewer['strengths_and_weakness']}."])
@@ -236,7 +236,7 @@ class ICLR_Formatter:
                 rebuttal = "The author doesn't have any rebuttal."
             response = " ".join(reviewer['response(from reviewer)']).strip()
             if not response:
-                response = f"Reviewer{str(index+1)} doesn't have more comment."
+                response = f"Reviewer {str(index+1)} doesn't have more comment."
             
             meta['history'].append([f"You are Reviewer {str(index+1)}, and your review style is {style}. Please provide a review based on the paper provided, including a summary, strengths, weaknesses, and any questions you have.",
             f"Summary: {reviewer['summary']}. Strengths and Weaknesses: {reviewer['strengths'] + '. ' + reviewer['weakness']}. Questions: {reviewer['questions']}."])
@@ -268,7 +268,7 @@ def uai(review, paper):
             rebuttal = "The author doesn't have any rebuttal."
         response = " ".join(reviewer['response(from reviewer)']).strip()
         if not response:
-            response = f"Reviewer{str(index+1)} doesn't have more comment."
+            response = f"Reviewer {str(index+1)} doesn't have more comment."
         
         summarylist = [reviewer['summary']['Q1 Summary and contributions'], reviewer['summary']['Q2 Assessment of the paper'], reviewer['summary']['Q5 Detailed comments to the authors'], reviewer['summary']['Q7 Justification for your score']]
         summary = " ".join(summarylist)
@@ -288,13 +288,30 @@ def uai(review, paper):
 
 def nips(review, paper):
     meta = META_DATA_TEMPLATE.copy()
-    meta['title'] = review['title']
-    meta['abstract'] = review['abstract']
+    if isinstance(review['title'], dict):
+        meta['title'] = review['title']['value']
+    else:
+        meta['title'] = review['title']
+    if isinstance(review['abstract'], dict):
+        meta['abstract'] = review['abstract']['value']
+    else:
+        meta['abstract'] = review['abstract']
+    if isinstance(review['meta_review'], dict):
+        meta['meta_review'] = review['meta_review']['value']
+    else:
+        meta['meta_review'] = review['meta_review']
+    if isinstance(review['decision'], dict):
+        meta['decision'] = review['decision']['value'].split('(')[0].strip()
+    else:
+        meta['decision'] = review['decision'].split('(')[0].strip()
     meta['paper'] = paper
-    meta['meta_review'] = review['meta_review']
-    meta['decision'] = review['decision'].split('(')[0].strip()
+    
     for index, reviewer in enumerate(review['reviewers']):
-        rating = int(reviewer['rating'][0]) 
+        if isinstance(reviewer['rating'], dict):
+            rating = int(reviewer['rating']['value'][0]) 
+        else:
+            rating = int(reviewer['rating'][0]) 
+
         if rating >= 1 and rating <= 3:
             style = 'Harsh'
         elif rating >=4 and rating <= 6:
@@ -304,12 +321,23 @@ def nips(review, paper):
         else:
             raise Exception("Rating value error!")
         
-        rebuttal = " ".join(reviewer['rebuttal(from author)']).strip()
+        if (len(reviewer['rebuttal(from author)']) != 0) and (isinstance(reviewer['rebuttal(from author)'][0], dict)):
+            rebuttal = ""
+            for i in reviewer['rebuttal(from author)']:
+                rebuttal += (i['value']).strip()
+        else:
+            rebuttal = " ".join(reviewer['rebuttal(from author)']).strip()
         if not rebuttal:
             rebuttal = "The author doesn't have any rebuttal."
-        response = " ".join(reviewer['response(from reviewer)']).strip()
+        
+        if (len(reviewer['response(from reviewer)']) != 0) and (isinstance(reviewer['response(from reviewer)'][0], dict)):
+            response = ""
+            for i in reviewer['response(from reviewer)']:
+                response += (i['value']).strip()
+        else:
+            response = " ".join(reviewer['response(from reviewer)']).strip()
         if not response:
-            response = f"Reviewer{str(index+1)} doesn't have more comment."
+            response = f"Reviewer {str(index+1)} doesn't have more comment."
         
         meta['history'].append(
             [f"You are Reviewer {str(index+1)}, and your review style is {style}. Please provide a review based on the paper provided, including a summary, strengths, weaknesses, and any questions you have.",
