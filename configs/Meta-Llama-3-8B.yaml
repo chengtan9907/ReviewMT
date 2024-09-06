@@ -1,0 +1,41 @@
+### model
+model_name_or_path: NousResearch/Meta-Llama-3-8B
+
+### method
+stage: sft
+do_train: true
+finetuning_type: lora
+lora_target: all
+
+### dataset
+dataset_dir: datasets
+dataset: identity,alpaca_en_demo,alpaca_zh_demo,ReviewMT
+template: llama3
+cutoff_len: 10240
+overwrite_cache: true
+preprocessing_num_workers: 4
+
+### output
+output_dir: models/llama3-8b
+logging_steps: 10
+save_steps: 500
+plot_loss: true
+overwrite_output_dir: true
+
+### train
+per_device_train_batch_size: 1
+gradient_accumulation_steps: 8
+learning_rate: 1.0e-5
+num_train_epochs: 3.0
+lr_scheduler_type: cosine
+warmup_ratio: 0.1
+bf16: true
+ddp_timeout: 180000000
+
+### eval
+val_size: 0.1
+per_device_eval_batch_size: 1
+eval_strategy: steps
+eval_steps: 500
+
+rope_scaling: linear
