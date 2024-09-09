@@ -23,14 +23,19 @@ def download_model(model_name, save_path):
         "all": "socks5://wolfcave.myds.me:17659"
     }
     times = 0
+    force_download = True
     while True:
         try:
-            snapshot_download(repo_id=model_name, local_dir=save_path, force_download=True, proxies=proxies, resume_download=True)
+            snapshot_download(repo_id=model_name, local_dir=save_path, force_download=force_download, proxies=proxies, resume_download=True, token="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")
             break
         except Exception:
             times += 1
             if times <= 20:
-                print("Retry again")
+                print()
+                print('-'*os.get_terminal_size().columns)
+                print(f"Retry again {times}/20")
+                print()
+                force_download = False
                 continue
             else:
                 raise Exception("Too many retry times!")
@@ -125,7 +130,8 @@ def main():
         "falcon": "tiiuae/falcon-7b",
         "yi_1.5": "01-ai/Yi-1.5-6B-Chat",
         "glm4": "THUDM/glm-4-9b",
-        "qwen2": "Qwen/Qwen2-7B"
+        "qwen2": "Qwen/Qwen2-7B",
+        "gemma2": "google/gemma-2-9b"
     }
     
     template_list = {
@@ -139,7 +145,8 @@ def main():
         "falcon": "falcon",
         "yi_1.5": "yi",
         "glm4": "glm4",
-        "qwen2": "qwen"
+        "qwen2": "qwen",
+        "gemma2": "gemma"
     }
     
     choose_models_list = args.models
