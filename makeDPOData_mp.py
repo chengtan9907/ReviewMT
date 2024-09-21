@@ -1,37 +1,82 @@
 from src.module.readData import read_all_data
+from src.convert import ICLR_Formatter
+from src.module.convert_module import extract_single_pdf
+import json
+from tqdm import tqdm
 
+def process_dpo_data(p, r):
+    year = p.split("/")[-1][5:9]
+    method_name = f"deal{year}"
+    iclr = ICLR_Formatter()
+    corresponding_method = getattr(iclr, method_name)
+    paper = extract_single_pdf(p)
+    with open(r, "r") as fp:
+        review = json.load(fp)
+    iclr.base(review, paper, DPO_type=True)
+    meta = corresponding_method(review['reviewers'])
+    pos_reviewers = ""
+    neg_reviewers = ""
+    acc_reviewers = []
+    rej_reviewers = []
+    for reviewer in meta['summary']:
+      if reviewer['rating'] > 4:
+        acc_reviewers.append((reviewer['summary'], reviewer['rating']))
+      else:
+        rej_reviewers.append((reviewer['summary'], reviewer['rating']))
+    if len(acc_reviewers) == 0 or len(rej_reviewers) == 0:
+      return False
+    summary_content_1 = max(acc_reviewers, key=lambda x: x[1])[0]
+    summary_content_2 = min(rej_reviewers, key=lambda x: x[1])[0]
+    if meta['decision'] == 'Accept':
+      pos_reviewers = summary_content_1
+      neg_reviewers = summary_content_2
+    elif meta['decision'] == 'Reject':
+      pos_reviewers = summary_content_2
+      neg_reviewers = summary_content_1
+    else:
+      raise Exception(f"Unrecognized decision value: {meta['decision']}")
 
-
-
-
-
-"conversations": [
-      {
-        "from": "human",
-        "value": "Please provide a review based on the following paper, including a summary, strengths, weaknesses, and any questions you have: Title: [title]. Abstract: [abstract]. Main Text: [paper]."
-      }
-    ],
-    "chosen": {   # 对于接收论文，这里用正分review；对于被拒论文，这里用负分review， 这里是一致的正常review
-      "from": "gpt",
-      "value": "Summary: [summary]. Strengths: [strengths]. Weaknesses: [weakness]. Questions: [questions]."
-    },
-    "rejected": { # 对于接收论文，这里用负分review；对于被拒论文，这里用正分review， 这里是不一致的傻逼review
-      "from": "gpt",
-      "value": "Summary: [summary]. Strengths: [strengths]. Weaknesses: [weakness]. Questions: [questions]."
+    return {
+        "conversations": [
+          {
+            "from": "human",
+            "value": f"Please provide a review based on the following paper, including a summary, strengths, weaknesses, and any questions you have: Title: {meta['title']}. Abstract: {meta['abstract']}. Main Text: {meta['paper']}."
+          }
+        ],
+        "chosen": {
+            "from": "gpt",
+            "value": pos_reviewers
+        },
+        "rejected": {
+            "from": "gpt",
+            "value": neg_reviewers
+        }
     }
-  
-
-
-
-def ICLR_formatter():
-    result = {
-        "conversations" = [],
-        "chosen" = {},
-        "rejected" = {}
-    }
-
 
 def main():
     _, _, iclr_review_path, iclr_paper_path, _, _ = read_all_data()
+    iclr_paper_path = [i for i in iclr_paper_path if not '2024' in i]
+    iclr_review_path = [i for i in iclr_review_path if not '2024' in i]
 
+    results = []
+    for p, r in tqdm(zip(iclr_paper_path, iclr_review_path), desc="Conversion", total=len(iclr_paper_path)):
+       result = process_dpo_data(p, r)
+       results.append(result)
 
+       
+    futures = []
+    inlegal_num = 0
+
+    index = 0
+
+    for meta in tqdm(results, desc="saving", total=len(results)):
+      if meta == False:
+        inlegal_num += 1
+      else:
+        with open(fr"./data/converted/DPO/{index:05}.json", 'w') as fp:
+          json.dump(meta, fp)
+          index += 1
+    
+    print(f"inlegal_number: {inlegal_num}/{len(results)}")
+if __name__ == '__main__':
+    main()

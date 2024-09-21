@@ -1,28 +1,25 @@
 import re
 import json
-from ..convert import uai, nips, ICLR_Formatter
+from ..convert import uai, nips, process_iclr
 
 def process_uai_data(p_r):
     p, r = p_r
     paper = extract_single_pdf(p)
     with open(r, "r") as fp:
         review = json.load(fp)
+    meta = None
     meta = uai(review, paper)
     pattern = r"UAI/(\d{4})"
     year = int(re.findall(pattern, r)[0])
     return meta, p, year
 
-def process_iclr_data(p_r):
+def process_iclr_data(p_r, DPO_type=False):
     p, r = p_r
-    year = p.split("/")[-1][5:9]
-    method_name = f"deal{year}"
-    iclr = ICLR_Formatter()
-    corresponding_method = getattr(iclr, method_name)
+    method_name = p.split("/")[-1][5:9]
     paper = extract_single_pdf(p)
     with open(r, "r") as fp:
         review = json.load(fp)
-    iclr.base(review, paper)
-    meta = corresponding_method(review['reviewers'])
+    meta = process_iclr(review, paper, method_name, DPO_type)
     pattern = r"ICLR_(\d{4})"
     year = int(re.findall(pattern, r)[0])
     return meta, p, year
@@ -36,6 +33,7 @@ def process_nips_data(p_r):
         review = fix_nips(review)
         if review == False:
             return False
+    meta = None
     meta = nips(review, paper)
     pattern = r"NeurIPS/(\d{4})"
     year = int(re.findall(pattern, r)[0])
@@ -48,10 +46,6 @@ def extract_single_pdf(single_md_path):
     content = re.split(r'(?i)(introd)', paper, maxsplit=1)[1:]
     content = "".join(content)
     return content
-
-def save_file(meta, index):
-    with open(fr"./data/converted/ICLR/{index:05}.json", 'w') as fp:
-        json.dump(meta, fp)
 
 def parse_review_string(review_string):
     keys = ["summary_and_contributions", "opportunities_for_improvement", "limitations", "rating", "confidence"]

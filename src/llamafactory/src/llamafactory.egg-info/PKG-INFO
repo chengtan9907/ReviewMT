@@ -21,24 +21,69 @@ Classifier: Programming Language :: Python :: 3.11
 Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
 Requires-Python: >=3.8.0
 Description-Content-Type: text/markdown
+Requires-Dist: transformers<=4.45.0,>=4.41.2
+Requires-Dist: datasets<=2.21.0,>=2.16.0
+Requires-Dist: accelerate<=0.33.0,>=0.30.1
+Requires-Dist: peft<=0.12.0,>=0.11.1
+Requires-Dist: trl<=0.9.6,>=0.8.6
+Requires-Dist: gradio>=4.0.0
+Requires-Dist: pandas>=2.0.0
+Requires-Dist: scipy
+Requires-Dist: einops
+Requires-Dist: sentencepiece
+Requires-Dist: tiktoken
+Requires-Dist: protobuf
+Requires-Dist: uvicorn
+Requires-Dist: pydantic
+Requires-Dist: fastapi
+Requires-Dist: sse-starlette
+Requires-Dist: matplotlib>=3.7.0
+Requires-Dist: fire
+Requires-Dist: packaging
+Requires-Dist: pyyaml
+Requires-Dist: numpy<2.0.0
 Provides-Extra: torch
+Requires-Dist: torch>=1.13.1; extra == "torch"
 Provides-Extra: torch-npu
+Requires-Dist: torch==2.1.0; extra == "torch-npu"
+Requires-Dist: torch-npu==2.1.0.post3; extra == "torch-npu"
+Requires-Dist: decorator; extra == "torch-npu"
 Provides-Extra: metrics
+Requires-Dist: nltk; extra == "metrics"
+Requires-Dist: jieba; extra == "metrics"
+Requires-Dist: rouge-chinese; extra == "metrics"
 Provides-Extra: deepspeed
+Requires-Dist: deepspeed>=0.10.0; extra == "deepspeed"
 Provides-Extra: liger-kernel
+Requires-Dist: liger-kernel; extra == "liger-kernel"
 Provides-Extra: bitsandbytes
+Requires-Dist: bitsandbytes>=0.39.0; extra == "bitsandbytes"
 Provides-Extra: hqq
+Requires-Dist: hqq; extra == "hqq"
 Provides-Extra: eetq
+Requires-Dist: eetq; extra == "eetq"
 Provides-Extra: gptq
+Requires-Dist: optimum>=1.17.0; extra == "gptq"
+Requires-Dist: auto-gptq>=0.5.0; extra == "gptq"
 Provides-Extra: awq
+Requires-Dist: autoawq; extra == "awq"
 Provides-Extra: aqlm
+Requires-Dist: aqlm[gpu]>=1.1.0; extra == "aqlm"
 Provides-Extra: vllm
+Requires-Dist: vllm>=0.4.3; extra == "vllm"
 Provides-Extra: galore
+Requires-Dist: galore-torch; extra == "galore"
 Provides-Extra: badam
+Requires-Dist: badam>=1.2.1; extra == "badam"
 Provides-Extra: adam-mini
+Requires-Dist: adam-mini; extra == "adam-mini"
 Provides-Extra: qwen
+Requires-Dist: transformers_stream_generator; extra == "qwen"
 Provides-Extra: modelscope
+Requires-Dist: modelscope; extra == "modelscope"
 Provides-Extra: dev
+Requires-Dist: ruff; extra == "dev"
+Requires-Dist: pytest; extra == "dev"
 
 ![# LLaMA Factory](assets/logo.png)
 

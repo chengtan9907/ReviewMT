@@ -5,8 +5,7 @@ from tqdm import tqdm
 import argparse
 from src.module.statistic_module import cal_statistic
 from src.module.readData import read_all_data
-from src.module.convert_module import process_uai_data, process_iclr_data, process_nips_data, save_file
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from src.module.convert_module import process_uai_data, process_iclr_data, process_nips_data
 
 def convert_nips(nips_review_path, nips_paper_path, statistic=False):
     print("Start to convert NIPS data.")
@@ -23,16 +22,10 @@ def convert_nips(nips_review_path, nips_paper_path, statistic=False):
 
     pool.close()
     pool.join()
-    futures = []
-    with ThreadPoolExecutor(max_workers = 100) as executor:
-        for index, (meta, _, _) in enumerate(results):
-            future = executor.submit(save_file, (meta, index))
-            futures.append(future)
-    as_completed(futures)
 
-    for index, (meta, _, _) in enumerate(results):
+    for index, r in enumerate(results):
         with open(fr"./data/converted/NeurIPS/{index:04}.json", 'w') as fp:
-            json.dump(meta, fp)
+            json.dump(r, fp)
 
     if statistic:
         path_list = [fr"./data/converted/NeurIPS/{index:04}.json" for index in range(len(results))]
@@ -40,7 +33,7 @@ def convert_nips(nips_review_path, nips_paper_path, statistic=False):
         for r in results:
             years.append(r[2])
         statis = cal_statistic(years, path_list, range(2021, 2024))
-    return statis
+        return statis
 
 def convert_iclr(iclr_review_path, iclr_paper_path, statistic=False):
     print("Start to convert ICLR data.")
@@ -53,12 +46,10 @@ def convert_iclr(iclr_review_path, iclr_paper_path, statistic=False):
             pbar.update()
     pool.close()
     pool.join()
-    futures = []
-    with ThreadPoolExecutor(max_workers = 100) as executor:
-        for index, (meta, _, _) in enumerate(results):
-            future = executor.submit(save_file, (meta, index))
-            futures.append(future)
-    as_completed(futures)
+
+    for index, r in enumerate(results):
+        with open(fr"./data/converted/ICLR/{index:05}.json", 'w') as fp:
+                json.dump(r, fp)
     
     if statistic:
         path_list = [fr"./data/converted/ICLR/{index:05}.json" for index in range(len(results))]
@@ -66,7 +57,7 @@ def convert_iclr(iclr_review_path, iclr_paper_path, statistic=False):
         for r in results:
             years.append(r[2])
         statis = cal_statistic(years, path_list, range(2017, 2025))
-    return statis
+        return statis
 
 def convert_uai(uai_review_path, uai_paper_path, statistic=False):
     print("Start to convert UAI data.")
@@ -77,21 +68,21 @@ def convert_uai(uai_review_path, uai_paper_path, statistic=False):
         for result in pool.imap(process_uai_data, zip(uai_paper_path, uai_review_path)):
             results.append(result)
             pbar.update()
+
     pool.close()
     pool.join()
-    futures = []
-    with ThreadPoolExecutor(max_workers = 100) as executor:
-        for index, (meta, _, _) in enumerate(results):
-            future = executor.submit(save_file, (meta, index))
-            futures.append(future)
-    as_completed(futures)
+
+    for index, r in enumerate(results):
+        with open(fr"./data/converted/UAI/{index:03}.json", 'w') as fp:
+            json.dump(r, fp)
+
     if statistic:
         path_list = [fr"./data/converted/UAI/{index:03}.json" for index in range(len(results))]
         years = []
         for r in results:
             years.append(r[2])
         statis = cal_statistic(years, path_list, range(2022, 2024))
-    return statis
+        return statis
 
 def main():
 
@@ -114,34 +105,37 @@ def main():
     with tqdm(desc="Conversion Script", total=3, leave=True) as tdq:
         if statistic:
             statis = convert_nips(nips_review_path, nips_paper_path, statistic=True)
-            print("----------NeurIPS----------")
+            num = (os.get_terminal_size().columns-7)//2-1
+            print("-"*num, "NeurIPS", "-"*num)
             for year in range(2021, 2024):
                 print(f"{year}_papers: {statis[year]['papers']}")
                 print(f"{year}_reviews: {statis[year]['reviews']}")
                 print(f"{year}_tokens: {statis[year]['tokens']}")
-            print("----------NeurIPS----------")
+            print("-"*num, "NeurIPS", "-"*num)
         else:
             statis = convert_nips(nips_review_path, nips_paper_path, statistic=False)
         tdq.update()
         if statistic:
             statis = convert_iclr(iclr_review_path, iclr_paper_path, statistic=True)
-            print("----------ICLR----------")
+            num = (os.get_terminal_size().columns-4)//2-1
+            print("-"*num, "ICLR", "-"*num)
             for year in range(2017, 2025):
                 print(f"{year}_papers: {statis[year]['papers']}")
                 print(f"{year}_reviews: {statis[year]['reviews']}")
                 print(f"{year}_tokens: {statis[year]['tokens']}")
-            print("----------ICLR----------")
+            print("-"*num, "ICLR", "-"*num)
         else:
             convert_iclr(iclr_review_path, iclr_paper_path, statistic=False)
         tdq.update()
         if statistic:
             statis = convert_uai(uai_review_path, uai_paper_path, statistic=True)
-            print("----------UAI----------")
+            num = (os.get_terminal_size().columns-3)//2-1
+            print("-"*num, "UAI", "-"*num)
             for year in range(2022, 2024):
                 print(f"{year}_papers: {statis[year]['papers']}")
                 print(f"{year}_reviews: {statis[year]['reviews']}")
                 print(f"{year}_tokens: {statis[year]['tokens']}")
-            print("----------UAI----------")
+            print("-"*num, "UAI", "-"*num)
         else:
             convert_uai(uai_review_path, uai_paper_path, statistic=False)
         tdq.update()

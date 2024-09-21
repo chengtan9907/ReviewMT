@@ -10,10 +10,10 @@ tokenizer = None
 
 def init_tokenizer():
     global tokenizer
-    os.environ['https_proxy'] = 'http://wolfcave.myds.me:17658'
-    os.environ['http_proxy'] = 'http://wolfcave.myds.me:17658'
-    os.environ['all_proxy'] = 'socks5://wolfcave.myds.me:17659'
-    tokenizer = AutoTokenizer.from_pretrained("NousResearch/Meta-Llama-3-8B")
+    os.environ['https_proxy'] = 'http://wolfcave.myds.me:987'
+    os.environ['http_proxy'] = 'http://wolfcave.myds.me:987'
+    os.environ['all_proxy'] = 'socks5://wolfcave.myds.me:988'
+    tokenizer = AutoTokenizer.from_pretrained("./models/raw/Meta-Llama-3-8B")
 
 def calculate_tokens(text):
     global tokenizer
@@ -26,6 +26,7 @@ def process_single_file(path):
     try:
         with open(path, 'r') as fp:
             content = json.load(fp)
+        content = content[0]
         tokens = calculate_tokens(str(content))
         papers = 1
         reviews = len(content['history']) // 3

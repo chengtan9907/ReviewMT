@@ -11,16 +11,15 @@ import re
 import shutil
 import time
 from huggingface_hub import snapshot_download
-import requests
 
 train_datasets_lock = threading.Lock()
 test_datasets_lock = threading.Lock()
 
 def download_model(model_name, save_path):
     proxies = {
-        "http": "http://wolfcave.myds.me:17658",
-        "https": "http://wolfcave.myds.me:17658",
-        "all": "socks5://wolfcave.myds.me:17659"
+        "http": "http://wolfcave.myds.me:987",
+        "https": "http://wolfcave.myds.me:987",
+        "all": "socks5://wolfcave.myds.me:988"
     }
     times = 0
     force_download = True
@@ -64,10 +63,10 @@ def open_file(file, type):
         content = json.load(fp)
     if type == 'train':
         with train_datasets_lock:
-            train_datasets.append(content)
+            train_datasets.append(content[0])
     else:
         with test_datasets_lock:
-            test_datasets.append(content)
+            test_datasets.append(content[0])
 
 def datasetsLoad(test):
     iclr_data_path = glob.glob(r"./data/converted/ICLR/**.json")
@@ -107,7 +106,7 @@ def save_dataset_chunks(train_datasets, chunk_size):
 
 def main():
     parser = argparse.ArgumentParser("SFT")
-    parser.add_argument("--models", nargs='+', default=['llama3', 'qwen', 'baichuan2', 'gemma', 'deepseek', 'yuan2', 'chatglm3', 'falcon', 'yi_1.5', 'glm4', 'qwen2'], help="base models prepared to finetune on, choose from [llama3, qwen, baichuan2, gemma, deepseek, yuan2, chatglm3, falcon, yi_1.5, glm4, qwen2]")
+    parser.add_argument("--models", nargs='+', default=['llama3', 'qwen', 'baichuan2', 'gemma', 'deepseek', 'yuan2', 'chatglm3', 'falcon', 'yi_1.5', 'glm4', 'qwen2', 'gemma2'], help="base models prepared to finetune on, choose from [llama3, qwen, baichuan2, gemma, deepseek, yuan2, chatglm3, falcon, yi_1.5, glm4, qwen2]")
     parser.add_argument("--test", default=100, help="size of test datasets (random extraction from ICLR2024)")
     parser.add_argument("--chunk_size", default=1000, help="the chunk size of train datasets split")
     parser.add_argument("--tworkers", default=100, help="number of threads dealing with datasets")
@@ -171,52 +170,60 @@ def main():
     
     input("All models have been downloaded, shall we continue?")
 
-    with ThreadPoolExecutor(max_workers=args.tworkers) as executor:
-        with tqdm(total=3, desc="Load and split datasets") as tqd:
-            futures = []
-            for i in nips_data_path:
-                future = executor.submit(open_file, i, 'train')
-                futures.append(future)
-            wait(futures)
-            tqd.update()
+    # with ThreadPoolExecutor(max_workers=args.tworkers) as executor:
+    #     with tqdm(total=3, desc="Load and split datasets") as tqd:
+    #         futures = []
+    #         for i in nips_data_path:
+    #             future = executor.submit(open_file, i, 'train')
+    #             futures.append(future)
+    #         wait(futures)
+    #         tqd.update()
             
-            futures = []
-            for i in uai_data_path:
-                future = executor.submit(open_file, i, 'train')
-                futures.append(future)
-            wait(futures)
-            tqd.update()
+    #         futures = []
+    #         for i in uai_data_path:
+    #             future = executor.submit(open_file, i, 'train')
+    #             futures.append(future)
+    #         wait(futures)
+    #         tqd.update()
 
-            futures = []
-            test = [len(iclr_data_path)+i for i in test]
-            for i in iclr_data_path:
-                number = int(i.split("/")[-1].replace(".json", ""))
-                if number in test:
-                    future = executor.submit(open_file, i, 'test')
-                    futures.append(future)
-                else:
-                    future = executor.submit(open_file, i, 'train')
-                    futures.append(future)
-            wait(futures)
-            tqd.update()
+    #         futures = []
+    #         test = [len(iclr_data_path)+i for i in test]
+    #         for i in iclr_data_path:
+    #             number = int(i.split("/")[-1].replace(".json", ""))
+    #             if number in test:
+    #                 future = executor.submit(open_file, i, 'test')
+    #                 futures.append(future)
+    #             else:
+    #                 future = executor.submit(open_file, i, 'train')
+    #                 futures.append(future)
+    #         wait(futures)
+    #         tqd.update()
 
     
-    correct_double_periods(train_datasets, test_datasets)
-    shutil.rmtree(r"./datasets/reviewmt_train")
-    save_dataset_chunks(train_datasets, chunk_size=args.chunk_size)
-    with open(r"./datasets/reviewmt_test.json", 'w') as fp:
-        json.dump(test_datasets, fp)
+    # correct_double_periods(train_datasets, test_datasets)
+    # shutil.rmtree(r"./datasets/reviewmt_train")
+    # save_dataset_chunks(train_datasets, chunk_size=args.chunk_size)
+    # with open(r"./datasets/reviewmt_test.json", 'w') as fp:
+    #     json.dump(test_datasets, fp)
+
+    train_path = glob.glob(r"./datasets/reviewmt_train/**.json")
+    train_path.sort()
+    for tr in train_path:
+        with open(tr, 'r') as fp:
+            content = json.load(fp)
+            train_datasets += content
+    with open(r"./datasets/reviewmt_test.json", 'r') as fp:
+        test_datasets = json.load(fp)
     
     print()
     print("Datasets have been splited")
     print(f"Train Datasets Size: {len(train_datasets)}")
     print(f"Test Datasets Size: {len(test_datasets)}")
     print("-"*os.get_terminal_size().columns)
-    input("Continue?")
     
     # use llamafactory to train
     
-    BATCH_SIZE = 2
+    BATCH_SIZE = 1
     for model in choose_models_list:
         name = models_list[model].split("/")[-1]
         cmd = [
@@ -228,11 +235,11 @@ def main():
             "--lora_target", "all",
             "--dataset_dir", "datasets",
             "--dataset", "identity,alpaca_en_demo,alpaca_zh_demo,ReviewMT",
-            "--template", template_list[model],
+            "--template", 'glm4',
             "--cutoff_len", "10240",
             "--overwrite_cache", "true",
-            "--preprocessing_num_workers", "16",
-            "--output_dir", f"models/{name}",
+            "--preprocessing_num_workers", "32",
+            "--output_dir", f"models/SFT/{name}",
             "--logging_steps", "10",
             "--save_steps", "500",
             "--plot_loss", "true",
@@ -251,9 +258,11 @@ def main():
             "--eval_steps", "500",
             "--rope_scaling", "linear"
         ]
+        print(model)
+        if model=='glm4':
+            cmd.remove("--rope_scaling")
+            cmd.remove("linear")
         subprocess.run(cmd)
-        print()
-        input("Continue?")
 
 if __name__ == '__main__':
     main()

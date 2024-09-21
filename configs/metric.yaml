@@ -1,0 +1,11 @@
+
+# Dataset to use when fine-tuning
+# Must choose from ['zeroshot', 'finetune']
+datasets = ['zeroshot', 'finetune']
+
+# Finished and prepared models for metric
+# Must choose from ['llama3', 'qwen', 'baichuan2', 'gemma', 'deepseek', 'yuan2', 'chatglm3', 'falcon', 'yi_1.5', 'glm4', 'qwen2']
+model_names = ['llama3']
+
+# This is the number of articles you want to metric on, that is, the total number of documents after inference
+total_papers = 100
