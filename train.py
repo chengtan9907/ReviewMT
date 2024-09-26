@@ -11,15 +11,16 @@ import re
 import shutil
 import time
 from huggingface_hub import snapshot_download
+import requests
 
 train_datasets_lock = threading.Lock()
 test_datasets_lock = threading.Lock()
 
 def download_model(model_name, save_path):
     proxies = {
-        "http": "http://wolfcave.myds.me:987",
-        "https": "http://wolfcave.myds.me:987",
-        "all": "socks5://wolfcave.myds.me:988"
+        "http": "http://wolfcave.myds.me:17658",
+        "https": "http://wolfcave.myds.me:17658",
+        "all": "socks5://wolfcave.myds.me:17659"
     }
     times = 0
     force_download = True
@@ -60,13 +61,13 @@ def open_file(file, type):
     global train_datasets
     global test_datasets
     with open(file, 'r') as fp:
-        content = json.load(fp)
+        content = json.load(fp)[0]
     if type == 'train':
         with train_datasets_lock:
-            train_datasets.append(content[0])
+            train_datasets.append(content)
     else:
         with test_datasets_lock:
-            test_datasets.append(content[0])
+            test_datasets.append(content)
 
 def datasetsLoad(test):
     iclr_data_path = glob.glob(r"./data/converted/ICLR/**.json")
@@ -106,9 +107,9 @@ def save_dataset_chunks(train_datasets, chunk_size):
 
 def main():
     parser = argparse.ArgumentParser("SFT")
-    parser.add_argument("--models", nargs='+', default=['llama3', 'qwen', 'baichuan2', 'gemma', 'deepseek', 'yuan2', 'chatglm3', 'falcon', 'yi_1.5', 'glm4', 'qwen2', 'gemma2'], help="base models prepared to finetune on, choose from [llama3, qwen, baichuan2, gemma, deepseek, yuan2, chatglm3, falcon, yi_1.5, glm4, qwen2]")
+    parser.add_argument("--models", nargs='+', default=['llama3', 'qwen', 'baichuan2', 'gemma', 'deepseek', 'yuan2', 'chatglm3', 'falcon', 'yi_1.5', 'glm4', 'qwen2', 'gemma2'], help="base models prepared to finetune on, choose from [llama3, qwen, baichuan2, gemma, deepseek, yuan2, chatglm3, falcon, yi_1.5, glm4, qwen2, gemma2]")
     parser.add_argument("--test", default=100, help="size of test datasets (random extraction from ICLR2024)")
-    parser.add_argument("--chunk_size", default=1000, help="the chunk size of train datasets split")
+    parser.add_argument("--chunk_size", default=2000, help="the chunk size of train datasets split")
     parser.add_argument("--tworkers", default=100, help="number of threads dealing with datasets")
 
     args = parser.parse_args()
@@ -201,29 +202,21 @@ def main():
 
     
     # correct_double_periods(train_datasets, test_datasets)
-    # shutil.rmtree(r"./datasets/reviewmt_train")
+    # if os.path.exists(r"./datasets/reviewmt_train"):
+    #     shutil.rmtree(r"./datasets/reviewmt_train")
     # save_dataset_chunks(train_datasets, chunk_size=args.chunk_size)
     # with open(r"./datasets/reviewmt_test.json", 'w') as fp:
     #     json.dump(test_datasets, fp)
-
-    train_path = glob.glob(r"./datasets/reviewmt_train/**.json")
-    train_path.sort()
-    for tr in train_path:
-        with open(tr, 'r') as fp:
-            content = json.load(fp)
-            train_datasets += content
-    with open(r"./datasets/reviewmt_test.json", 'r') as fp:
-        test_datasets = json.load(fp)
     
-    print()
-    print("Datasets have been splited")
-    print(f"Train Datasets Size: {len(train_datasets)}")
-    print(f"Test Datasets Size: {len(test_datasets)}")
-    print("-"*os.get_terminal_size().columns)
+    # print()
+    # print("Datasets have been splited")
+    # print(f"Train Datasets Size: {len(train_datasets)}")
+    # print(f"Test Datasets Size: {len(test_datasets)}")
+    # print("-"*os.get_terminal_size().columns)
     
-    # use llamafactory to train
+    # # use llamafactory to train
     
-    BATCH_SIZE = 1
+    BATCH_SIZE = 2
     for model in choose_models_list:
         name = models_list[model].split("/")[-1]
         cmd = [
@@ -234,12 +227,12 @@ def main():
             "--finetuning_type", "lora",
             "--lora_target", "all",
             "--dataset_dir", "datasets",
-            "--dataset", "identity,alpaca_en_demo,alpaca_zh_demo,ReviewMT",
-            "--template", 'glm4',
-            "--cutoff_len", "10240",
+            "--dataset", "alpaca_en_demo,ReviewMT",
+            "--template", template_list[model],
+            "--cutoff_len", "1024",
             "--overwrite_cache", "true",
-            "--preprocessing_num_workers", "32",
-            "--output_dir", f"models/SFT/{name}",
+            "--preprocessing_num_workers", "16",
+            "--output_dir", f"models/new_sft/{name}",
             "--logging_steps", "10",
             "--save_steps", "500",
             "--plot_loss", "true",
@@ -256,13 +249,11 @@ def main():
             "--per_device_eval_batch_size", "1",
             "--eval_strategy", "steps",
             "--eval_steps", "500",
-            "--rope_scaling", "linear"
+            "--cache_dir", "./cache",
+            "--rope_scaling", "dynamic"
         ]
-        print(model)
-        if model=='glm4':
-            cmd.remove("--rope_scaling")
-            cmd.remove("linear")
         subprocess.run(cmd)
+        print()
 
 if __name__ == '__main__':
     main()

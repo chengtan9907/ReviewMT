@@ -5,3 +5,5 @@ RawData.zip
 /models
 /datasets
 /results
+/cache
+/DPOcache

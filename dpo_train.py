@@ -70,16 +70,16 @@ def main():
             "--dataset_dir", "datasets",
             "--dataset", "ReviewMT_DPO",
             "--template", template_list[model],
-            "--cutoff_len", "10240",
+            "--cutoff_len", "1024",
             "--overwrite_cache", "true",
-            "--preprocessing_num_workers", "8",
-            "--output_dir", f"models/DPO/{name}",
+            "--preprocessing_num_workers", "1",
+            "--output_dir", f"models/DPO/{name}/10240",
             "--logging_steps", "10",
             "--save_steps", "500",
             "--plot_loss", "true",
             "--overwrite_output_dir", "true",
             "--per_device_train_batch_size", "1",
-            "--gradient_accumulation_steps", "4",
+            "--gradient_accumulation_steps", "8",
             "--learning_rate", "5.0e-6",
             "--num_train_epochs", "3.0",
             "--lr_scheduler_type", "cosine",
@@ -90,7 +90,8 @@ def main():
             "--per_device_eval_batch_size", "1",
             "--eval_strategy", "steps",
             "--eval_steps", "500",
-            "--rope_scaling", "linear"
+            "--rope_scaling", "linear",
+            "--cache_dir", "./DPOcache"
         ]
         result = subprocess.run(cmd)
         if result.returncode != 0:

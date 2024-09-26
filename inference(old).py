@@ -11,95 +11,10 @@ from tqdm.asyncio import tqdm_asyncio
 from llamafactory.chat import chat_model
 from concurrent.futures import ProcessPoolExecutor
 import torch.multiprocessing as mp
-
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
-parser = argparse.ArgumentParser()
-parser.add_argument('--model', '-m', type=str, default='qwen',
-                    help='The path of config file.')
-parser.add_argument('--number', '-n', type=int, default=100,
-                    help='The number of papers from test dataset to inference.')
-
-arguments = parser.parse_args()
-
-model_name = arguments.model
-
-
-number_of_inference = arguments.number
-
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-
-output_dir = r"./results/inference_results/Meta-Llama-3-8B_sft_test"
-
-model_list = {
-    'llama3': {
-        "model_name_or_path": "./models/raw/Meta-Llama-3-8B",
-        "adapter_name_or_path": "./models/SFT/Meta-Llama-3-8B",
-        "template": "llama3",
-        "full_context": True
-    },
-    'yuan2': {
-        "model_name_or_path": "data/models/Yuan2-2B-hf",
-        "template": "yuan",
-        "full_context": False
-    },
-    'baichuan2': {
-        "model_name_or_path": "data/models/Baichuan2-7B-Base",
-        "template": "baichuan2",
-        "full_context": True
-    },
-    'chatglm3': {
-        "model_name_or_path": "data/models/chatglm3-6b-base",
-        "template": "chatglm3",
-        "full_context": False
-    },
-    'deepseek': {
-        "model_name_or_path": "data/models/deepseek-llm-7b-base",
-        "template": "deepseek",
-        "full_context": True
-    },
-    'gemma': {
-        "model_name_or_path": "data/models/gemma-7b",
-        "template": "gemma",
-        "full_context": True
-    },
-    'qwen': {
-        "model_name_or_path": "data/models/Qwen-7B",
-        "template": "qwen",
-        "full_context": True
-    },
-    'falcon': {
-        "model_name_or_path": "data/models/falcon-7b",
-        "template": "falcon",
-        "full_context": False
-    },
-    'yi': {
-        "model_name_or_path": "data/models/Yi-1.5-6B-Chat",
-        "template": "yi",
-        "full_context": True
-    },
-    'glm4': {
-        "model_name_or_path": "data/models/glm-4-9b",
-        "template": "glm4",
-        "full_context": False
-    },
-    'qwen2': {
-        "model_name_or_path": "data/models/Qwen2-7B",
-        "template": "qwen",
-        "full_context": False
-    }
-}
-
-args = {
-    "model_name_or_path": model_list[model_name]['model_name_or_path'],
-    "adapter_name_or_path": model_list[model_name]['adapter_name_or_path'],
-    "template": model_list[model_name]['template'],
-    "max_new_tokens": 512
-}
-
-model = None
-full_context = model_list[model_name]['full_context']
+import glob
+from tqdm import tqdm
+import os.path as osp
+mp.set_start_method('spawn')
 
 def load_model(args):
     global model
@@ -192,15 +107,20 @@ def process_entry(args, t, index, full_context):
     return result
 
 async def main():
-    with open(r"./datasets/reviewmt_test.json", 'r', encoding='utf-8') as fp:
-        test_data = json.load(fp)
+    test_data = []
+    if type_1 == 'test':
+        with open(r"datasets/reviewmt_test.json", 'r', encoding='utf-8') as fp:
+            test_data = json.load(fp)
+    elif type_1 == 'train':
+        path = glob.glob(r"datasets/reviewmt_train/**.json")
+        for p in path:
+            with open(p, 'r', encoding='utf-8') as fp:
+                test_data += json.load(fp)
 
-    # max_number_of_inference = len(test_data)
-    
-    # if number_of_inference > max_number_of_inference:
-    #     number_of_inference = max_number_of_inference
-    
+    max_number_of_inference = len(test_data)
     number_of_inference = 100
+    if number_of_inference > max_number_of_inference:
+        number_of_inference = max_number_of_inference
 
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
@@ -218,6 +138,136 @@ async def main():
             result = await f
             results.append(result)
 
-if __name__ == '__main__':
-    mp.set_start_method('spawn')
-    asyncio.run(main())
+
+
+models_list = {
+    "llama3": "NousResearch/Meta-Llama-3-8B",
+    "qwen": "Qwen/Qwen-7B",
+    "baichuan2": "baichuan-inc/Baichuan2-7B-Base",
+    "gemma": "google/gemma-7b",
+    "deepseek": "deepseek-ai/deepseek-llm-7b-base",
+    "yuan2": "IEITYuan/Yuan2-2B-hf",
+    "chatglm3": "THUDM/chatglm3-6b-base",
+    "falcon": "tiiuae/falcon-7b",
+    "yi_1.5": "01-ai/Yi-1.5-6B-Chat",
+    "glm4": "THUDM/glm-4-9b",
+    "qwen2": "Qwen/Qwen2-7B",
+    "gemma2": "google/gemma-2-9b"
+}
+
+template_list = {
+    "llama3": "llama3",
+    "qwen": "qwen",
+    "baichuan2": "baichuan2",
+    "gemma": "gemma",
+    "deepseek": "deepseek",
+    "yuan2": "yuan",
+    "chatglm3": "chatglm3",
+    "falcon": "falcon",
+    "yi_1.5": "yi",
+    "glm4": "glm4",
+    "qwen2": "qwen",
+    "gemma2": "gemma"
+}
+
+full_context_list = {
+    "llama3": True,
+    "qwen": True,
+    "baichuan2": True,
+    "gemma": True,
+    "deepseek": True,
+    "yuan2": False,
+    "chatglm3": False,
+    "falcon": False,
+    "yi_1.5": True,
+    "glm4": False,
+    "qwen2": False,
+    "gemma2": True
+}
+
+model_types = ['sft', 'dpo', 'raw']
+datasets_types = ['test', 'train']
+
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+global logger
+global output_dir
+global full_context
+global args
+global number_of_inference
+global type_1
+global arguments
+global model
+model = None
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--models', '-m', type=str, nargs='+', default=['llama3', 'qwen', 'baichuan2', 'gemma', 'deepseek', 'yuan2', 'chatglm3', 'falcon', 'yi_1.5', 'glm4', 'qwen2', 'gemma2'],
+                    help='The path of config file.')
+parser.add_argument('--type_model', '-t1', type=str, nargs='+', default=['sft', 'dpo', 'raw'],
+                    help='The type of test dataset.')
+parser.add_argument('--type_data', '-t2', type=str, nargs='+', default=['test', 'train'],
+                    help='The type of test dataset.')
+parser.add_argument('--number', '-n', type=int, default=100,
+                    help='The number of papers from test dataset to inference.')
+arguments = parser.parse_args()
+choose_model_list = arguments.models
+for model in choose_model_list:
+    if not model in models_list:
+        raise Exception("Unknown model_name")
+type_model = arguments.type_model
+type_data = arguments.type_data
+for t in type_model:
+    if not t in model_types:
+        raise Exception("Unknown type of model")
+for t in type_data:
+    if not t in datasets_types:
+        raise Exception("Unknown type of dataset")
+for t in type_model:
+    if t == 'dpo':
+        t = 'DPO'
+    elif t == 'sft':
+        t = 'SFT'
+number_of_inference = arguments.number
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+model_list = {}
+for model_name in choose_model_list:
+    model_list[model_name] = {
+        "model_name_or_path": f"models/{type[0]}/{models_list[model_name]}",
+        "template": f"{template_list[model_name]}",
+        "full_context": f"{full_context_list[model_name]}"
+    }
+model = None
+
+
+number_of_inference = arguments.number
+for model_name in tqdm(choose_model_list, position=0, desc="model"):
+    for type1 in tqdm(type_model, position=1, desc="type_model"):
+        for type2 in tqdm(type_data, position=2, desc="type_data"):
+            type_1 = type2
+            n = models_list[model_name].split("/")[-1]
+            output_dir = os.path.join(r"./results/inference_results", f"{n}_{type1}_{type2}")
+            full_context = full_context_list[model_name]
+
+            name = models_list[model_name].split("/")[-1]
+            if type1 == 'raw':
+                model_path = osp.join(r"./models/raw", name)
+                adapter_path = None
+            elif type1 == 'sft':
+                model_path = osp.join(r"./models/raw", name)
+                adapter_path = osp.join(r"./models/SFT", name)
+            elif type1 == 'dpo':
+                model_path = osp.join(r"./models/raw", name)
+                adapter_path = osp.join(r"./models/DPO", name)
+            else:
+                raise Exception(f"unknown type argument {name}")
+
+            args = {
+                "model_name_or_path": model_path,
+                "adapter_name_or_path": adapter_path,
+                "template": model_list[model_name]['template'],
+                "max_new_tokens": 512
+            }
+            asyncio.run(main())
+
+

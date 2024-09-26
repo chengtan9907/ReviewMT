@@ -1,4 +1,4 @@
-from llamafactory.chat import chat_model
+from llmtuner.chat import chat_model
 import argparse
 from tqdm import tqdm
 import os
@@ -14,6 +14,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 os.chdir(r"/tancheng/lvdx/ReviewMT_plus")
+os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 datasets = {
     'train': r"./datasets/reviewmt_train",
@@ -65,6 +66,14 @@ FULL_CONTEXT = {
     "gemma2": True
 }
 
+def remove_unicode_sequences(input_string):
+    if isinstance(input_string, list):
+        for i in input_string:
+            i = re.sub(r'\\u[0-9a-fA-F]{4}', '', i)
+        return input_string
+    else:
+        return re.sub(r'\\u[0-9a-fA-F]{4}', '', input_string)
+
 # inference single model with TYPE(raw, sft, dpo) MODEL_NAME on datasets(a file or a path)
 def inference(model_name, datasets, type, number_of_inference=None):
     name = models_list[model_name].split("/")[-1]
@@ -73,7 +82,7 @@ def inference(model_name, datasets, type, number_of_inference=None):
         adapter_path = None
     elif type == 'sft':
         model_path = osp.join(r"./models/raw", name)
-        adapter_path = osp.join(r"./models/SFT", name)
+        adapter_path = osp.join(r"./models/new_sft", f"{name}")
     elif type == 'dpo':
         model_path = osp.join(r"./models/raw", name)
         adapter_path = osp.join(r"./models/DPO", name)
@@ -104,12 +113,12 @@ def inference(model_name, datasets, type, number_of_inference=None):
         "model_name_or_path": model_path,
         "adapter_name_or_path": adapter_path,
         "template": template_list[model_name],
-        "finetuning_type": "lora",
-        "max_new_tokens": 512
+        "max_new_tokens": 512,
+        "rope_scaling": "dynamic"
     }
 
     dataset_type = "train" if "train" in datasets else "test"
-    output_dir = osp.join(r"./results/inference_results", f"{name}_{type}_{dataset_type}")
+    output_dir = osp.join(r"./results/inference_results/new_sft", f"{name}_{type}_{dataset_type}")
     os.makedirs(output_dir, exist_ok=True)
 
     # Limit the number of processes to the number of available GPUs
@@ -137,7 +146,6 @@ def inference(model_name, datasets, type, number_of_inference=None):
 
 def load_model(args):
     global model
-    # Assign a unique GPU to each process
     # device_id = (mp.current_process()._identity[0] - 1) % torch.cuda.device_count()
     # torch.cuda.set_device(device_id)
     model = chat_model.ChatModel(args)
@@ -182,10 +190,10 @@ def process_entry_async(t, index, full_context, output_dir, type_train):
             with torch.no_grad():
                 reply = model.chat(conversation_history)
             torch_gc()
-            print()
-            print("-"*os.get_terminal_size().columns)
-            print(f"{index:04} history: {idx}\/{len(t['history'])}")
-            gpu_info()
+            # print()
+            # print("-"*os.get_terminal_size().columns)
+            # print(f"{index:04} history: {idx}/{len(t['history'])}")
+            # gpu_info()
             chat_reply = reply[0].response_text
             conversation_history.append({"role": "assistant", "content": chat_reply})
 
@@ -214,33 +222,30 @@ def process_entry_async(t, index, full_context, output_dir, type_train):
         "title_abs": title_abs,
         "roles": roles,
         "gt_replies": gt_replies,
-        "pred_replies": pred_replies,
+        "pred_replies": remove_unicode_sequences(pred_replies),
     }
     
+    
     file_path = os.path.join(output_dir, f"{index:04d}.json")
-    # Use asynchronous file I/O to write JSON data
     with open(file_path, 'w', encoding='utf-8') as fp:
         json.dump(result, fp)
-    # async with aiofiles.open(file_path, 'w', encoding='utf-8') as fp:
-    #     await fp.write(json.dumps(result))
     torch_gc()
-    gpu_info()
 
-def gpu_info():
-    current_gpu_index = torch.cuda.current_device()
-    total_memory = torch.cuda.get_device_properties(current_gpu_index).total_memory
-    allocated_memory = torch.cuda.memory_allocated(current_gpu_index)
-    free_memory = total_memory - allocated_memory
-    total_memory_MB = total_memory / (1024 ** 2)
-    allocated_memory_MB = allocated_memory / (1024 ** 2)
-    free_memory_MB = free_memory / (1024 ** 2)
+# def gpu_info():
+#     current_gpu_index = torch.cuda.current_device()
+#     total_memory = torch.cuda.get_device_properties(current_gpu_index).total_memory
+#     allocated_memory = torch.cuda.memory_allocated(current_gpu_index)
+#     free_memory = total_memory - allocated_memory
+#     total_memory_MB = total_memory / (1024 ** 2)
+#     allocated_memory_MB = allocated_memory / (1024 ** 2)
+#     free_memory_MB = free_memory / (1024 ** 2)
     
-    print(f"Current GPU index: \t{current_gpu_index}")
-    print(f"Total GPU memory: \t{total_memory_MB:.2f} MB")
-    print(f"Allocated GPU memory: \t {allocated_memory_MB:.2f} MB")
-    print(f"Free GPU memory: \t{free_memory_MB:.2f} MB")
-    print("-"*os.get_terminal_size().columns)
-    print()
+#     print(f"Current GPU index: \t{current_gpu_index}")
+#     print(f"Total GPU memory: \t{total_memory_MB:.2f} MB")
+#     print(f"Allocated GPU memory: \t {allocated_memory_MB:.2f} MB")
+#     print(f"Free GPU memory: \t{free_memory_MB:.2f} MB")
+#     print("-"*os.get_terminal_size().columns)
+#     print()
 
 def torch_gc() -> None:
     gc.collect()
@@ -250,7 +255,9 @@ def torch_gc() -> None:
 
 def main():
     parser = argparse.ArgumentParser("Inference")
-    parser.add_argument("--models", nargs='+', help="The models prepared to inference")
+    parser.add_argument("--models", nargs='+', default=['llama3', 'qwen', 'baichuan2', 'gemma', 'deepseek', 'yuan2', 'chatglm3', 'falcon', 'yi_1.5', 'glm4', 'qwen2', 'gemma2'], help="The models prepared to inference")
+    parser.add_argument('--type_model', '-t1', type=str, nargs='+', default=['sft', 'dpo', 'raw'],
+                    help='The type of test dataset.')
     args = parser.parse_args()
     choose_model = args.models
     for i in choose_model:
@@ -259,7 +266,7 @@ def main():
 
     for model in tqdm(choose_model, desc="Inference model"):
         for dataset in datasets.values():
-            for type in ['sft', 'dpo']:
+            for type in args.type_model:
                 columns = os.get_terminal_size().columns
                 show_str = model + " " + type + " " + dataset.split("/")[-1]
                 print("-" * (columns//2-len(show_str)), show_str, "-" * (columns//2-len(show_str)))

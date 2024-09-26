@@ -1,19 +1,15 @@
 from src.module.readData import read_all_data
-from src.convert import ICLR_Formatter
+from src.convert import process_iclr
 from src.module.convert_module import extract_single_pdf
 import json
 from tqdm import tqdm
 
 def process_dpo_data(p, r):
-    year = p.split("/")[-1][5:9]
-    method_name = f"deal{year}"
-    iclr = ICLR_Formatter()
-    corresponding_method = getattr(iclr, method_name)
+    method_name = p.split("/")[-1][5:9]
     paper = extract_single_pdf(p)
     with open(r, "r") as fp:
         review = json.load(fp)
-    iclr.base(review, paper, DPO_type=True)
-    meta = corresponding_method(review['reviewers'])
+    meta = process_iclr(review, paper, method_name, True)
     pos_reviewers = ""
     neg_reviewers = ""
     acc_reviewers = []
