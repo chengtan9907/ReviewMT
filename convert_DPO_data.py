@@ -1,8 +1,10 @@
 from src.module.readData import read_all_data
-from src.convert import process_iclr
+from src.module.convert_module import process_iclr
 from src.module.convert_module import extract_single_pdf
 import json
 from tqdm import tqdm
+import random
+import os
 
 def process_dpo_data(p, r):
     method_name = p.split("/")[-1][5:9]
@@ -10,6 +12,8 @@ def process_dpo_data(p, r):
     with open(r, "r") as fp:
         review = json.load(fp)
     meta = process_iclr(review, paper, method_name, True)
+    if meta == False:
+      return False
     pos_reviewers = ""
     neg_reviewers = ""
     acc_reviewers = []
@@ -57,14 +61,15 @@ def main():
     results = []
     for p, r in tqdm(zip(iclr_paper_path, iclr_review_path), desc="Conversion", total=len(iclr_paper_path)):
        result = process_dpo_data(p, r)
+       if result==False:
+         continue
        results.append(result)
-
-       
-    futures = []
     inlegal_num = 0
-
     index = 0
-
+    
+    dpo_datasets = []
+    
+    os.makedirs("./data/converted/DPO", exist_ok=True)
     for meta in tqdm(results, desc="saving", total=len(results)):
       if meta == False:
         inlegal_num += 1
@@ -72,7 +77,12 @@ def main():
         with open(fr"./data/converted/DPO/{index:05}.json", 'w') as fp:
           json.dump(meta, fp)
           index += 1
-    
+        dpo_datasets.append(meta)
     print(f"inlegal_number: {inlegal_num}/{len(results)}")
+    random.shuffle(dpo_datasets)
+
+    with open(f"./datasets/reviewmt_dpo.json", 'w') as fp:
+       json.dump(dpo_datasets, fp)
+
 if __name__ == '__main__':
     main()

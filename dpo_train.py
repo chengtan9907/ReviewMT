@@ -48,13 +48,14 @@ def make_datasets():
 
 def main():
     parser = argparse.ArgumentParser("DPO")
-    parser.add_argument("--models", nargs='+', default=['llama3', 'qwen', 'baichuan2', 'gemma', 'deepseek', 'yuan2', 'chatglm3', 'falcon', 'yi_1.5', 'glm4', 'qwen2'], help="base models prepared to finetune on, choose from [llama3, qwen, baichuan2, gemma, deepseek, yuan2, chatglm3, falcon, yi_1.5, glm4, qwen2]")
+    parser.add_argument("--models", "-m", nargs='+', default=['llama3', 'qwen', 'baichuan2', 'gemma', 'deepseek', 'yuan2', 'chatglm3', 'falcon', 'yi_1.5', 'glm4', 'qwen2', 'gemma2'], help="base models prepared to finetune on, choose from [llama3, qwen, baichuan2, gemma, deepseek, yuan2, chatglm3, falcon, yi_1.5, glm4, qwen2, gemma2]")
+    parser.add_argument("--batchsize", "-b", default=1, help="train batch size on per device (default: 1)")
     args = parser.parse_args()
     choose_models_list = args.models
     make_datasets()
 
     print("All datasets have been made succesfully.")
-    BATCH_SIZE = 1
+    BATCH_SIZE = args.batchsize
     for model in tqdm(choose_models_list, desc="Model DPO", total=len(choose_models_list)):
         name = models_list[model].split("/")[-1]
         cmd = [
@@ -73,12 +74,12 @@ def main():
             "--cutoff_len", "1024",
             "--overwrite_cache", "true",
             "--preprocessing_num_workers", "1",
-            "--output_dir", f"models/DPO/{name}/10240",
+            "--output_dir", f"models/DPO/{name}",
             "--logging_steps", "10",
             "--save_steps", "500",
             "--plot_loss", "true",
             "--overwrite_output_dir", "true",
-            "--per_device_train_batch_size", "1",
+            "--per_device_train_batch_size", f"{BATCH_SIZE}",
             "--gradient_accumulation_steps", "8",
             "--learning_rate", "5.0e-6",
             "--num_train_epochs", "3.0",
@@ -90,12 +91,10 @@ def main():
             "--per_device_eval_batch_size", "1",
             "--eval_strategy", "steps",
             "--eval_steps", "500",
-            "--rope_scaling", "linear",
+            "--rope_scaling", "dynamic",
             "--cache_dir", "./DPOcache"
         ]
-        result = subprocess.run(cmd)
-        if result.returncode != 0:
-            input("continue?")
+        subprocess.run(cmd)
 
 if __name__ == "__main__":
     main()

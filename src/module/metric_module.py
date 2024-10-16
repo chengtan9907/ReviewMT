@@ -44,7 +44,8 @@ def calculate_bert(reference, hypothesis):
     _, _, f1 = bs(hypothesis, reference, lang='en', model_type='bert-base-uncased')
     return f1
  
-def process_files(path, dataset='iclr', total=100):    
+def process_files(path, dataset='iclr', total=100):
+    total=81
     bleu2_list, bleu4_list, rouge_l_list, rouge1_list, rouge2_list, meteor_list = [], [], [], [], [], []
     bert_list = []
     mae_list = []
@@ -83,7 +84,6 @@ def process_files(path, dataset='iclr', total=100):
 
             # reviewer score
             # if role == 'reviewer' and (idx + 1) % 3 == 0:
-            print(role)
             if role == 'reviewer':
                 total_reviews += 1
 
@@ -130,7 +130,6 @@ def process_files(path, dataset='iclr', total=100):
             rouge1_list.append(rouge1)
             rouge2_list.append(rouge2)
             meteor_list.append(meteor)
-
     return {
         'bleu2_mean': np.mean(bleu2_list),
         'bleu2_std': np.std(bleu2_list),

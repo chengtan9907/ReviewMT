@@ -1,4 +1,4 @@
-from llmtuner.chat import chat_model
+from llamafactory.chat import chat_model
 import argparse
 from tqdm import tqdm
 import os
@@ -8,16 +8,16 @@ import time
 import re
 import gc
 import torch
-import torch.multiprocessing as mp
 import logging
+from concurrent.futures import ProcessPoolExecutor, as_completed
+import multiprocessing as mp
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 os.chdir(r"/tancheng/lvdx/ReviewMT_plus")
-os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 datasets = {
-    'train': r"./datasets/reviewmt_train",
     'test': r"./datasets/reviewmt_test.json"
 }
 
@@ -66,23 +66,15 @@ FULL_CONTEXT = {
     "gemma2": True
 }
 
-def remove_unicode_sequences(input_string):
-    if isinstance(input_string, list):
-        for i in input_string:
-            i = re.sub(r'\\u[0-9a-fA-F]{4}', '', i)
-        return input_string
-    else:
-        return re.sub(r'\\u[0-9a-fA-F]{4}', '', input_string)
-
 # inference single model with TYPE(raw, sft, dpo) MODEL_NAME on datasets(a file or a path)
-def inference(model_name, datasets, type, number_of_inference=None):
+def inference(model_name, datasets, type, number_of_inference=None, workers=1):
     name = models_list[model_name].split("/")[-1]
     if type == 'raw':
         model_path = osp.join(r"./models/raw", name)
         adapter_path = None
     elif type == 'sft':
         model_path = osp.join(r"./models/raw", name)
-        adapter_path = osp.join(r"./models/new_sft", f"{name}")
+        adapter_path = osp.join(r"./models/SFT", f"{name}")
     elif type == 'dpo':
         model_path = osp.join(r"./models/raw", name)
         adapter_path = osp.join(r"./models/DPO", name)
@@ -113,46 +105,31 @@ def inference(model_name, datasets, type, number_of_inference=None):
         "model_name_or_path": model_path,
         "adapter_name_or_path": adapter_path,
         "template": template_list[model_name],
-        "max_new_tokens": 512,
+        "max_new_tokens": 1024,
         "rope_scaling": "dynamic"
     }
 
-    dataset_type = "train" if "train" in datasets else "test"
-    output_dir = osp.join(r"./results/inference_results/new_sft", f"{name}_{type}_{dataset_type}")
+    dataset_type = "test"
+    output_dir = osp.join(r"./results/inference_results", f"{name}_{type}_{dataset_type}")
     os.makedirs(output_dir, exist_ok=True)
 
-    # Limit the number of processes to the number of available GPUs
-    num_gpus = torch.cuda.device_count()
-    processes = min(num_gpus, 5)  # Assuming a maximum of 4 processes
-
-    ctx = mp.get_context("spawn")  # Ensures that CUDA works well with multiprocesses
-    pool = ctx.Pool(processes=4, initializer=load_model, initargs=(args,))
     
+    futures = []
     results = []
-    futures = [
-        pool.apply_async(process_entry_async, args=(t, index, FULL_CONTEXT[model_name], output_dir, f"{name}_{type}_{dataset_type}"))
-        for index, t in enumerate(test_data[:number_of_inference])
-    ]
+    
+    with ProcessPoolExecutor(max_workers=workers) as exec:
+        for index,t in enumerate(test_data[:number_of_inference]):
+            futures.append(exec.submit(single_processor, t, index, FULL_CONTEXT[model_name], output_dir, f"{name}_{type}_{dataset_type}", args))
+        for future in tqdm(as_completed(futures), total=number_of_inference):
+            results.append(future.result())
 
-    for future in tqdm(futures, total=len(futures), desc="Processing"):
-        try:
-            result = future.get()
-            results.append(result)
-        except Exception as e:
-            print(f"Error during inference: {e}")
+def load_model(args) -> None:
+    mp.current_process()._model = chat_model.ChatModel(args)
 
-    pool.close()
-    pool.join()
-
-def load_model(args):
-    global model
-    # device_id = (mp.current_process()._identity[0] - 1) % torch.cuda.device_count()
-    # torch.cuda.set_device(device_id)
+def single_processor(t, index, full_context, output_dir, type_train, args):
+    # model = mp.current_process()._model
     model = chat_model.ChatModel(args)
-    return model
-
-def process_entry_async(t, index, full_context, output_dir, type_train):
-    global model
+    pid = os.getpid()
     pattern = r"Title:\s(.*?)\sAbstract:\s.*?\."
     try:
         match = re.search(pattern, t['input'])
@@ -169,14 +146,15 @@ def process_entry_async(t, index, full_context, output_dir, type_train):
 
     try:
         s_time = time.time()
-        with torch.no_grad():
-            reply = model.chat([{"role": "user", "content": context}])
+        reply = model.chat([{"role": "user", "content": context}])
         chat_reply = reply[0].response_text
         conversation_history = [
             {"role": "user", "content": initial_prompt},
             {"role": "assistant", "content": chat_reply}
         ]
-        logger.info(f"{type_train} Chat time for {index:04} context: {time.time() - s_time} seconds")
+        print(f"Process {pid}")
+        print(f"{type_train} Chat time for {index:04} context: {time.time() - s_time} seconds")
+        # logger.info(f"{type_train} Chat time for {index:04} context: {time.time() - s_time} seconds")
         role = None
         s_time = time.time()
         for idx, h in enumerate(t['history']):
@@ -187,30 +165,27 @@ def process_entry_async(t, index, full_context, output_dir, type_train):
             roles.append(role)
 
             conversation_history.append({"role": "user", "content": h[0]})
-            with torch.no_grad():
-                reply = model.chat(conversation_history)
-            torch_gc()
-            # print()
-            # print("-"*os.get_terminal_size().columns)
-            # print(f"{index:04} history: {idx}/{len(t['history'])}")
-            # gpu_info()
+            reply = model.chat(conversation_history)
             chat_reply = reply[0].response_text
             conversation_history.append({"role": "assistant", "content": chat_reply})
 
             pred_replies.append(chat_reply)
             gt_replies.append(h[1])
-            
-        logger.info(f"{type_train} Chat time for {index:04} history: {time.time() - s_time} seconds")
+        
+        print(f"Process {pid}")
+        print(f"{type_train} Chat time for {index:04} history: {time.time() - s_time} seconds")
+        # logger.info(f"{type_train} Chat time for {index:04} history: {time.time() - s_time} seconds")
 
         s_time = time.time()
-        decision_prompt = 'Role: Decision Maker. Task: Suggest Accept or Reject for this paper, and provide reasons.'
+        decision_prompt = 'You are the Decision Maker. Task: Suggest Accept or Reject for this paper, and provide reasons.'
         conversation_history.append({"role": "user", "content": decision_prompt})
-        with torch.no_grad():
-            reply = model.chat(conversation_history)
+        reply = model.chat(conversation_history)
         
         chat_reply = reply[0].response_text
-        logger.info(f"{type_train} Chat time for instruction: {time.time() - s_time} seconds")
-        logger.info("")
+        print(f"Process {pid}")
+        print(f"{type_train} Chat time for instruction: {time.time() - s_time} seconds")
+        #logger.info(f"{type_train} Chat time for instruction: {time.time() - s_time} seconds")
+        #logger.info("")
 
         roles.append("decision maker")
         pred_replies.append(chat_reply)
@@ -222,30 +197,17 @@ def process_entry_async(t, index, full_context, output_dir, type_train):
         "title_abs": title_abs,
         "roles": roles,
         "gt_replies": gt_replies,
-        "pred_replies": remove_unicode_sequences(pred_replies),
+        "pred_replies": pred_replies,
     }
-    
     
     file_path = os.path.join(output_dir, f"{index:04d}.json")
     with open(file_path, 'w', encoding='utf-8') as fp:
         json.dump(result, fp)
     torch_gc()
 
-# def gpu_info():
-#     current_gpu_index = torch.cuda.current_device()
-#     total_memory = torch.cuda.get_device_properties(current_gpu_index).total_memory
-#     allocated_memory = torch.cuda.memory_allocated(current_gpu_index)
-#     free_memory = total_memory - allocated_memory
-#     total_memory_MB = total_memory / (1024 ** 2)
-#     allocated_memory_MB = allocated_memory / (1024 ** 2)
-#     free_memory_MB = free_memory / (1024 ** 2)
-    
-#     print(f"Current GPU index: \t{current_gpu_index}")
-#     print(f"Total GPU memory: \t{total_memory_MB:.2f} MB")
-#     print(f"Allocated GPU memory: \t {allocated_memory_MB:.2f} MB")
-#     print(f"Free GPU memory: \t{free_memory_MB:.2f} MB")
-#     print("-"*os.get_terminal_size().columns)
-#     print()
+def destroy_model() -> None:
+    global model
+    model = None
 
 def torch_gc() -> None:
     gc.collect()
@@ -254,10 +216,11 @@ def torch_gc() -> None:
         torch.cuda.ipc_collect()
 
 def main():
-    parser = argparse.ArgumentParser("Inference")
+    parser =   argparse.ArgumentParser("Inference")
     parser.add_argument("--models", nargs='+', default=['llama3', 'qwen', 'baichuan2', 'gemma', 'deepseek', 'yuan2', 'chatglm3', 'falcon', 'yi_1.5', 'glm4', 'qwen2', 'gemma2'], help="The models prepared to inference")
     parser.add_argument('--type_model', '-t1', type=str, nargs='+', default=['sft', 'dpo', 'raw'],
                     help='The type of test dataset.')
+    parser.add_argument("--workers", '-w', default=6)
     args = parser.parse_args()
     choose_model = args.models
     for i in choose_model:
@@ -270,8 +233,11 @@ def main():
                 columns = os.get_terminal_size().columns
                 show_str = model + " " + type + " " + dataset.split("/")[-1]
                 print("-" * (columns//2-len(show_str)), show_str, "-" * (columns//2-len(show_str)))
-                inference(model, dataset, type, 100)  # Assuming we want to limit the number of inferences
+                inference(model, dataset, type, 100, args.workers)  # Assuming we want to limit the number of inferences
 
 if __name__ == '__main__':
-    mp.set_start_method('spawn')  # Use 'spawn' start method
+    mp.set_start_method('spawn')
     main()
+
+
+# --models deepseek yuan2 chatglm3 falcon yi_1.5 glm4 qwen2 gemma2
