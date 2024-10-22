@@ -1,8 +1,4 @@
-Statistic.xlsx
-statistics.ipynb
-invalidPDF.txt
-script.py
-validPDFCheck.py
+/tmp
 /data
 **/__pycache__
 RawData.zip

@@ -1,9 +1,0 @@
-./data/iclr_papers/ICLR_2017_paper_0317.pdf
-./data/iclr_papers/ICLR_2017_paper_0431.pdf
-./data/iclr_papers/ICLR_2018_paper_0192.pdf
-./data/iclr_papers/ICLR_2019_paper_0453.pdf
-./data/iclr_papers/ICLR_2019_paper_0860.pdf
-./data/iclr_papers/ICLR_2020_paper_0440.pdf
-./data/iclr_papers/ICLR_2021_paper_0474.pdf
-./data/iclr_papers/ICLR_2021_paper_1832.pdf
-./data/iclr_papers/ICLR_2023_paper_3594.pdf
