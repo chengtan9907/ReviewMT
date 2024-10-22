@@ -1,0 +1,31 @@
+{
+  "identity": {
+    "file_name": "identity.json"
+  },
+  "alpaca_en_demo": {
+    "file_name": "alpaca_en_demo.json"
+  },
+  "alpaca_zh_demo": {
+    "file_name": "alpaca_zh_demo.json"
+  },
+  "ReviewMT": {
+    "file_name": "reviewmt_train",
+    "columns": {
+      "prompt": "instruction",
+      "query": "input",
+      "response": "output",
+      "system": "system",
+      "history": "history"
+    }
+  },
+  "ReviewMT_DPO": {
+    "file_name": "reviewmt_dpo.json",
+    "formatting": "sharegpt",
+    "ranking": true,
+    "columns": {
+      "messages": "conversations",
+      "chosen": "chosen",
+      "rejected": "rejected"
+    }
+  }
+}

@@ -40,7 +40,7 @@ def process_single(path, name):
 def main():
     parser = argparse.ArgumentParser("metric")
     parser.add_argument("--models", "-m", nargs='+', default=['llama3', 'qwen', 'baichuan2', 'gemma', 'deepseek', 'yuan2', 'chatglm3', 'falcon', 'yi_1.5', 'glm4', 'qwen2', 'gemma2'])
-    parser.add_argument("--types", '-t')
+    parser.add_argument("--types", '-t', nargs='+', default=['sft', 'raw', 'dpo'])
     args = parser.parse_args()
     choose_models = args.models
     types = args.types
